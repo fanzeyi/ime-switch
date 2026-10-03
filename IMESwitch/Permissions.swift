@@ -26,9 +26,9 @@ enum Permissions {
     /// System shortcuts that are still bound to cmd+space and would fight with us.
     static func conflictingSystemShortcuts() -> [String] {
         let names: [String: String] = [
-            "60": "选择上一个输入法",
-            "61": "选择输入法菜单中的下一个输入法",
-            "64": "显示聚焦搜索",
+            "60": String(localized: "Select the previous input source"),
+            "61": String(localized: "Select next source in Input menu"),
+            "64": String(localized: "Show Spotlight search"),
         ]
         guard let hotkeys = CFPreferencesCopyAppValue(
             "AppleSymbolicHotKeys" as CFString, "com.apple.symbolichotkeys" as CFString

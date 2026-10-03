@@ -33,15 +33,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private static let hudDelay: TimeInterval = 0.15
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        statusItem.button?.image = NSImage(systemSymbolName: "globe", accessibilityDescription: "IMESwitch")
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
 
         syncMRU()
-        inputSources.onSelectionChanged = { [weak self] id in self?.mru.promote(id) }
-        inputSources.onSourcesChanged = { [weak self] in self?.syncMRU() }
+        inputSources.onSelectionChanged = { [weak self] id in
+            self?.mru.promote(id)
+            self?.updateStatusIcon()
+        }
+        inputSources.onSourcesChanged = { [weak self] in
+            self?.syncMRU()
+            self?.updateStatusIcon()
+        }
+        updateStatusIcon()
         tap.handler = { [weak self] event in self?.handle(event) }
 
         startTapWhenTrusted()
@@ -124,11 +130,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let conflicts = Permissions.conflictingSystemShortcuts()
         guard !conflicts.isEmpty else { return }
         let alert = NSAlert()
-        alert.messageText = "系统快捷键仍占用 ⌘Space"
-        alert.informativeText = "请在“系统设置 → 键盘 → 键盘快捷键”中关闭以下快捷键，否则会与 IMESwitch 冲突：\n\n"
+        alert.messageText = String(localized: "A system shortcut is still using ⌘Space")
+        alert.informativeText = String(localized: "Turn off these shortcuts in System Settings → Keyboard → Keyboard Shortcuts, or they will conflict with IMESwitch:")
+            + "\n\n"
             + conflicts.map { "• \($0)" }.joined(separator: "\n")
-        alert.addButton(withTitle: "打开键盘设置")
-        alert.addButton(withTitle: "稍后")
+        alert.addButton(withTitle: String(localized: "Open Keyboard Settings"))
+        alert.addButton(withTitle: String(localized: "Later"))
         NSApp.activate()
         if alert.runModal() == .alertFirstButtonReturn {
             Permissions.openKeyboardShortcutSettings()
@@ -136,6 +143,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     // MARK: - Menu
+
+    private func updateStatusIcon() {
+        if let id = inputSources.currentID, let source = inputSources.source(withID: id) {
+            statusItem.button?.image = BadgeImage.make(label: source.label, outlined: source.isKeyboardLayout)
+        } else {
+            statusItem.button?.image = NSImage(systemSymbolName: "globe", accessibilityDescription: "IMESwitch")
+        }
+    }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
@@ -146,30 +161,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             item.target = self
             item.representedObject = source.id
             item.state = source.id == current ? .on : .off
+            item.attributedTitle = Self.menuTitle(source)
             menu.addItem(item)
         }
         menu.addItem(.separator())
 
         if !tap.isRunning {
-            let item = NSMenuItem(title: "⚠️ 需要辅助功能权限…", action: #selector(openAccessibility), keyEquivalent: "")
+            let item = NSMenuItem(title: String(localized: "⚠️ Accessibility permission required…"), action: #selector(openAccessibility), keyEquivalent: "")
             item.target = self
             menu.addItem(item)
         }
         let conflicts = Permissions.conflictingSystemShortcuts()
         if !conflicts.isEmpty {
-            let item = NSMenuItem(title: "⚠️ 系统快捷键冲突：\(conflicts.joined(separator: "、"))…",
+            let item = NSMenuItem(title: String(localized: "⚠️ Conflicting system shortcut: \(conflicts.formatted(.list(type: .and)))…"),
                                   action: #selector(openKeyboardSettings), keyEquivalent: "")
             item.target = self
             menu.addItem(item)
         }
 
-        let login = NSMenuItem(title: "登录时启动", action: #selector(toggleLoginItem), keyEquivalent: "")
+        let login = NSMenuItem(title: String(localized: "Launch at Login"), action: #selector(toggleLoginItem), keyEquivalent: "")
         login.target = self
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
 
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "退出 IMESwitch", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: String(localized: "Quit IMESwitch"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+    }
+
+    /// Menus on current macOS don't draw `NSMenuItem.image`, so the badge goes into the
+    /// title as a text attachment, drawn in the label color like the system Input menu.
+    private static func menuTitle(_ source: InputSource) -> NSAttributedString {
+        let font = NSFont.menuFont(ofSize: 0)
+        let badge = BadgeImage.make(label: source.label, color: .labelColor)
+        let attachment = NSTextAttachment()
+        attachment.image = badge
+        attachment.bounds = NSRect(x: 0, y: (font.capHeight - badge.size.height) / 2,
+                                   width: badge.size.width, height: badge.size.height)
+        let title = NSMutableAttributedString(attachment: attachment)
+        title.append(NSAttributedString(string: "  " + source.name, attributes: [.font: font]))
+        return title
     }
 
     @objc private func selectSource(_ sender: NSMenuItem) {

@@ -1,0 +1,83 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "A system shortcut is still using ⌘Space" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システムのショートカットが ⌘Space を使用しています" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统快捷键仍占用 ⌘Space" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "系統快速鍵仍佔用 ⌘Space" } }
+      }
+    },
+    "Launch at Login" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ログイン時に起動" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录时启动" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "登入時啟動" } }
+      }
+    },
+    "Later" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "後で" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "稍后" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "稍後" } }
+      }
+    },
+    "Open Keyboard Settings" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "キーボード設定を開く" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开键盘设置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "打開鍵盤設定" } }
+      }
+    },
+    "Quit IMESwitch" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "IMESwitch を終了" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出 IMESwitch" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "結束 IMESwitch" } }
+      }
+    },
+    "Select next source in Input menu" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "入力メニューの次のソースを選択" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择输入法菜单中的下一个输入法" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇輸入方式選單中的下一個輸入方式" } }
+      }
+    },
+    "Select the previous input source" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "前の入力ソースを選択" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择上一个输入法" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇上一個輸入方式" } }
+      }
+    },
+    "Show Spotlight search" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Spotlight 検索を表示" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示聚焦搜索" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示 Spotlight 搜尋" } }
+      }
+    },
+    "Turn off these shortcuts in System Settings → Keyboard → Keyboard Shortcuts, or they will conflict with IMESwitch:" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "「システム設定」→「キーボード」→「キーボードショートカット」で次のショートカットをオフにしてください。オンのままだと IMESwitch と競合します：" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请在“系统设置 → 键盘 → 键盘快捷键”中关闭以下快捷键，否则会与 IMESwitch 冲突：" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "請在「系統設定 → 鍵盤 → 鍵盤快速鍵」中關閉以下快速鍵，否則會與 IMESwitch 衝突：" } }
+      }
+    },
+    "⚠️ Accessibility permission required…" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ アクセシビリティの許可が必要です…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 需要辅助功能权限…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 需要輔助使用權限…" } }
+      }
+    },
+    "⚠️ Conflicting system shortcut: %@…" : {
+      "localizations" : {
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ システムショートカットと競合：%@…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 系统快捷键冲突：%@…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 系統快速鍵衝突：%@…" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

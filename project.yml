@@ -1,6 +1,7 @@
 name: IMESwitch
 options:
   bundleIdPrefix: fan.zeyi
+  developmentLanguage: en
   deploymentTarget:
     macOS: "14.0"
 settings:

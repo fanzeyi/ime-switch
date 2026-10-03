@@ -8,7 +8,7 @@ final class SwitcherHUD {
     private var items: [HUDView.Item] = []
 
     func show(items: [InputSource], selected: Int, near caret: NSRect?) {
-        self.items = items.map { HUDView.Item(id: $0.id, label: $0.shortLabel) }
+        self.items = items.map { HUDView.Item(id: $0.id, label: $0.label) }
         // Assigning rootView updates synchronously, so fittingSize reflects the new
         // items even on the very first show.
         hosting.rootView = HUDView(items: self.items, selected: selected)

@@ -4,36 +4,9 @@ import Carbon
 struct InputSource {
     let id: String
     let name: String
-    let icon: NSImage?
-
-    /// Short label shown in the HUD, mirroring the system switcher where we know it.
-    var shortLabel: String {
-        if let label = Self.knownLabels[id] { return label }
-        if id.hasPrefix("com.apple.keylayout.") { return String(name.prefix(1)) }
-        return String(name.prefix(2))
-    }
-
-    private static let knownLabels: [String: String] = [
-        "com.apple.keylayout.ABC": "A",
-        "com.apple.keylayout.US": "A",
-        "com.apple.inputmethod.SCIM.ITABC": "简拼",
-        "com.apple.inputmethod.SCIM.Shuangpin": "简双",
-        "com.apple.inputmethod.SCIM.WBX": "五笔",
-        "com.apple.inputmethod.SCIM.WBH": "五笔",
-        "com.apple.inputmethod.TCIM.Pinyin": "繁拼",
-        "com.apple.inputmethod.TCIM.Shuangpin": "繁双",
-        "com.apple.inputmethod.TCIM.Zhuyin": "注音",
-        "com.apple.inputmethod.TCIM.ZhuyinEten": "注音",
-        "com.apple.inputmethod.TCIM.Cangjie": "倉頡",
-        "com.apple.inputmethod.TCIM.Jianyi": "速成",
-        "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese": "あ",
-        "com.apple.inputmethod.Kotoeri.KanaTyping.Japanese": "あ",
-        "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese.Katakana": "ア",
-        "com.apple.inputmethod.Kotoeri.KanaTyping.Japanese.Katakana": "ア",
-        "com.apple.inputmethod.Kotoeri.RomajiTyping.Roman": "A",
-        "com.apple.inputmethod.Korean.2SetKorean": "한",
-        "com.apple.inputmethod.Korean.3SetKorean": "한",
-    ]
+    let isKeyboardLayout: Bool
+    /// Short badge text, as in the system menu bar (e.g. "简拼", "あ", "DE").
+    let label: String
 }
 
 @MainActor
@@ -81,12 +54,54 @@ final class InputSourceManager {
     }
 
     func refresh() {
-        sources = Self.selectableSources().map { tis in
-            InputSource(
-                id: Self.string(tis, kTISPropertyInputSourceID) ?? "",
-                name: Self.string(tis, kTISPropertyLocalizedName) ?? "",
-                icon: Self.icon(tis)
+        let raw = Self.selectableSources().map { tis in
+            let id = Self.string(tis, kTISPropertyInputSourceID) ?? ""
+            let name = Self.string(tis, kTISPropertyLocalizedName) ?? ""
+            let labels = Self.property(tis, Self.iconLabelsKey) as? [String: Any]
+            return (
+                id: id,
+                name: name,
+                isLayout: Self.string(tis, kTISPropertyInputSourceType) == (kTISTypeKeyboardLayout as String),
+                primary: Self.labelOverrides[id] ?? labels?["Primary"] as? String ?? Self.fallbackLabel(name),
+                secondary: labels?["Secondary"] as? String,
+                language: (Self.property(tis, kTISPropertyInputSourceLanguages) as? [String])?.first
             )
+        }
+
+        // The system disambiguates sources that share a badge, e.g. Simplified and
+        // Traditional Pinyin are both "拼音" but show as "简拼" and "繁拼".
+        let counts = Dictionary(grouping: raw, by: \.primary).mapValues(\.count)
+        sources = raw.map { source in
+            var label = source.primary
+            if counts[source.primary, default: 0] > 1 {
+                if let prefix = Self.chineseScriptPrefix(source.language), let first = label.first {
+                    label = prefix + String(first)
+                } else if let secondary = source.secondary {
+                    label += secondary
+                }
+            }
+            return InputSource(id: source.id, name: source.name, isKeyboardLayout: source.isLayout, label: label)
+        }
+    }
+
+    /// Not in the public headers, but exported by HIToolbox and what the system menu
+    /// bar uses for its badges: a dictionary with "Primary" and optional "Secondary".
+    private static let iconLabelsKey = "TISPropertyInputSourceIconLabels" as CFString
+
+    /// Cases where the menu bar shows something other than the source's own label.
+    private static let labelOverrides = [
+        "com.apple.keylayout.US": "A",
+    ]
+
+    private static func fallbackLabel(_ name: String) -> String {
+        String(name.prefix(2))
+    }
+
+    private static func chineseScriptPrefix(_ language: String?) -> String? {
+        switch language {
+        case "zh-Hans": "简"
+        case "zh-Hant": "繁"
+        default: nil
         }
     }
 
@@ -126,13 +141,5 @@ final class InputSourceManager {
 
     private static func string(_ source: TISInputSource, _ key: CFString) -> String? {
         property(source, key) as? String
-    }
-
-    private static func icon(_ source: TISInputSource) -> NSImage? {
-        if let url = property(source, kTISPropertyIconImageURL) as? URL, let image = NSImage(contentsOf: url) {
-            image.isTemplate = true
-            return image
-        }
-        return nil
     }
 }
