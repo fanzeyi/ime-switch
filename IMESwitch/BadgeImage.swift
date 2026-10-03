@@ -1,5 +1,21 @@
 import AppKit
 
+/// Typography of input source labels, shared by the menu bar badge and the switcher HUD.
+/// Measured against the system: multi-character labels use a smaller font and are then
+/// condensed horizontally to fit.
+enum LabelStyle {
+    static let maxWidth: CGFloat = 15.5
+
+    static func font(for label: String) -> NSFont {
+        .systemFont(ofSize: label.count > 1 ? 10.5 : 12, weight: .semibold)
+    }
+
+    static func scaleX(for label: String) -> CGFloat {
+        let width = (label as NSString).size(withAttributes: [.font: font(for: label)]).width
+        return min(1, maxWidth / width)
+    }
+}
+
 /// Draws the system-style input source badge: a rounded rect with the label knocked out,
 /// or an outlined rect for keyboard layouts. The result is a template image, so AppKit
 /// tints it for the menu bar and menus.
@@ -8,20 +24,16 @@ import AppKit
 /// condensed horizontally instead of widening the badge.
 enum BadgeImage {
     private static let size = NSSize(width: 22, height: 16)
-    private static let maxTextWidth: CGFloat = 15.5
 
     /// Pass `color` for contexts that don't tint template images (e.g. text attachments);
     /// dynamic colors resolve when the image is drawn.
     static func make(label: String, outlined: Bool = false, color: NSColor? = nil) -> NSImage {
-        // Measured against the system badge: multi-character labels use a smaller font and
-        // are then condensed to fit.
-        let fontSize: CGFloat = label.count > 1 ? 10.5 : 12
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: fontSize, weight: .semibold),
+            .font: LabelStyle.font(for: label),
             .foregroundColor: color ?? .black,
         ]
         let textSize = (label as NSString).size(withAttributes: attributes)
-        let scaleX = min(1, maxTextWidth / textSize.width)
+        let scaleX = LabelStyle.scaleX(for: label)
 
         let image = NSImage(size: size, flipped: false) { rect in
             let radius: CGFloat = 5

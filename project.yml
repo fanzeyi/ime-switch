@@ -17,8 +17,8 @@ targets:
     info:
       path: IMESwitch/Info.plist
       properties:
-        CFBundleName: IMESwitch
-        CFBundleDisplayName: IMESwitch
+        CFBundleName: $(APP_DISPLAY_NAME)
+        CFBundleDisplayName: $(APP_DISPLAY_NAME)
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         LSUIElement: true
@@ -30,3 +30,14 @@ targets:
         CODE_SIGN_STYLE: Manual
         ENABLE_HARDENED_RUNTIME: YES
         GENERATE_INFOPLIST_FILE: NO
+      # Debug is the local dev build: a separate app (bundle ID, name, Accessibility
+      # grant, defaults) so it doesn't fight with the installed Developer ID build.
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: fan.zeyi.IMESwitch.dev
+          PRODUCT_NAME: IMESwitchDev
+          PRODUCT_MODULE_NAME: IMESwitch
+          APP_DISPLAY_NAME: IMESwitch Dev
+        Release:
+          PRODUCT_NAME: IMESwitch
+          APP_DISPLAY_NAME: IMESwitch

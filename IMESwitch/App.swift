@@ -76,7 +76,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 pendingHUD = work
                 DispatchQueue.main.asyncAfter(deadline: .now() + Self.hudDelay, execute: work)
             } else if hudVisible {
-                hud.update(selected: index)
+                hud.move(to: index)
             } else {
                 showHUD()
             }
@@ -84,12 +84,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .commit:
             let target = candidates.indices.contains(index) ? candidates[index] : nil
             endCycle()
+            hud.dismiss()
             if let target, inputSources.select(target) {
                 mru.promote(target)
             }
 
         case .cancel:
             endCycle()
+            hud.hide()
         }
     }
 
@@ -99,14 +101,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard !candidates.isEmpty else { return }
         let items = candidates.compactMap { inputSources.source(withID: $0) }
         guard items.count == candidates.count else { return }
-        hud.show(items: items, selected: index, near: CaretLocator.caretRect())
+        hud.showStrip(items: items, selected: index, caret: CaretLocator.caretRect())
         hudVisible = true
     }
 
     private func endCycle() {
         pendingHUD?.cancel()
         pendingHUD = nil
-        hud.hide()
         hudVisible = false
         candidates = []
         index = 0

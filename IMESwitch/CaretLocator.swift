@@ -9,31 +9,46 @@ enum CaretLocator {
         guard let focused = focusedElement() else { return nil }
         AXUIElementSetMessagingTimeout(focused, 0.05)
 
-        if let rangeValue = axValue(focused, kAXSelectedTextRangeAttribute) {
-            var bounds: CFTypeRef?
-            let err = AXUIElementCopyParameterizedAttributeValue(
-                focused, kAXBoundsForRangeParameterizedAttribute as CFString, rangeValue, &bounds)
-            if err == .success, let bounds, let rect = plausibleCaret(bounds) {
-                return rect
-            }
-        }
-
         // Web engines (Firefox, Safari, Chromium) expose the caret through text markers.
-        if let caret = textMarkerCaret(focused) {
-            return caret
+        if let caret = rangeCaret(focused) ?? textMarkerCaret(focused) {
+            return clamped(caret, to: elementFrame(focused))
         }
 
         // Fall back to the focused element's frame (e.g. terminals, some Electron apps).
-        if let posValue = axValue(focused, kAXPositionAttribute),
-           let sizeValue = axValue(focused, kAXSizeAttribute) {
-            var origin = CGPoint.zero
-            var size = CGSize.zero
-            if AXValueGetValue(posValue, .cgPoint, &origin), AXValueGetValue(sizeValue, .cgSize, &size),
-               size.width > 0, size.height > 0, size.height < 200 {
-                return toCocoa(CGRect(origin: origin, size: size))
-            }
+        if let frame = elementFrame(focused), frame.height < 200 {
+            return frame
         }
         return nil
+    }
+
+    /// Some apps misplace the caret in an empty document; TextEdit reports it a line above
+    /// the text view, in the title bar. Keep it vertically within the focused element.
+    private static func clamped(_ caret: NSRect, to frame: NSRect?) -> NSRect {
+        guard let frame, frame.height >= caret.height else { return caret }
+        var caret = caret
+        caret.origin.y = min(max(caret.minY, frame.minY), frame.maxY - caret.height)
+        return caret
+    }
+
+    @MainActor
+    private static func elementFrame(_ element: AXUIElement) -> NSRect? {
+        guard let posValue = axValue(element, kAXPositionAttribute),
+              let sizeValue = axValue(element, kAXSizeAttribute)
+        else { return nil }
+        var origin = CGPoint.zero
+        var size = CGSize.zero
+        guard AXValueGetValue(posValue, .cgPoint, &origin), AXValueGetValue(sizeValue, .cgSize, &size),
+              size.width > 0, size.height > 0
+        else { return nil }
+        return toCocoa(CGRect(origin: origin, size: size))
+    }
+
+    @MainActor
+    private static func rangeCaret(_ element: AXUIElement) -> NSRect? {
+        guard let range = axValue(element, kAXSelectedTextRangeAttribute),
+              let bounds = parameterized(element, kAXBoundsForRangeParameterizedAttribute, range)
+        else { return nil }
+        return plausibleCaret(bounds)
     }
 
     @MainActor

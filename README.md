@@ -14,16 +14,19 @@ A menu bar app that replaces macOS's ⌘Space input source switching with cmd+ta
 Requires Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
 
 ```sh
-make run       # generate project, build Release, launch
-make install   # copy to /Applications and launch
+make run       # build and launch the dev app, "IMESwitch Dev"
+make dist      # notarized build for distribution (see below)
+make install   # copy the `make dist` build to /Applications and launch
 ```
+
+The dev app (Debug configuration) has its own bundle ID, `fan.zeyi.IMESwitch.dev`, so it gets its own Accessibility grant and settings and never invalidates the installed app's grant. Only one can own ⌘Space at a time, so `make run` quits the installed app; restart it with `open /Applications/IMESwitch.app`.
 
 ## Setup
 
 1. **Disable the system shortcut**: System Settings → Keyboard → Keyboard Shortcuts → Input Sources, turn off "Select the previous input source" (and Spotlight, if it is still on ⌘Space). The app warns at launch if these are still bound.
 2. **Grant Accessibility**: System Settings → Privacy & Security → Accessibility → enable IMESwitch. Needed for the event tap that intercepts ⌘Space and for locating the caret.
 
-Local builds are signed with an Apple Development certificate (team `U75D75QN8A` in `project.yml`), so the designated requirement stays stable across rebuilds and the Accessibility grant survives.
+Dev builds are signed with an Apple Development certificate (team `U75D75QN8A` in `project.yml`), so the designated requirement stays stable across rebuilds and the Accessibility grant survives.
 
 ## Distribute
 

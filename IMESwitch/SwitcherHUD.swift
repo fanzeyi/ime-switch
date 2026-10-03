@@ -1,56 +1,90 @@
 import AppKit
 import SwiftUI
 
+/// Recreates the system input source switcher at the text caret: the highlight stays
+/// pinned at the caret and the strip of sources slides under it. After a switch, macOS
+/// shows its own caret indicator, so the strip just fades out.
 @MainActor
 final class SwitcherHUD {
-    private let hosting = NSHostingView(rootView: HUDView(items: [], selected: 0))
+    private let state = HUDState()
     private lazy var panel: NSPanel = makePanel()
-    private var items: [HUDView.Item] = []
+    private var anchor: NSPoint?
+    /// Bumped on every show or dismiss so deferred steps (fade-in, close after fade-out)
+    /// from an earlier one are dropped.
+    private var generation = 0
 
-    func show(items: [InputSource], selected: Int, near caret: NSRect?) {
-        self.items = items.map { HUDView.Item(id: $0.id, label: $0.label) }
-        // Assigning rootView updates synchronously, so fittingSize reflects the new
-        // items even on the very first show.
-        hosting.rootView = HUDView(items: self.items, selected: selected)
-        hosting.layoutSubtreeIfNeeded()
+    private static let fadeOutDuration: TimeInterval = 0.12
 
-        let wasVisible = panel.isVisible
-        let size = hosting.fittingSize
-        if !wasVisible {
-            panel.setFrame(frame(for: size, near: caret), display: false)
-            panel.orderFrontRegardless()
-        } else if panel.frame.size != size {
-            var frame = panel.frame
-            frame.size = size
-            panel.setFrame(frame, display: true)
+    func showStrip(items: [InputSource], selected: Int, caret: NSRect?) {
+        generation += 1
+        anchor = Self.anchor(for: caret)
+        withoutAnimation {
+            state.items = items.map { HUDState.Item(id: $0.id, label: $0.label) }
+            state.selected = selected
+            state.stripVisible = false
+        }
+        place()
+        // Lay out and draw the final geometry before fading in; otherwise the first layout
+        // joins the fade's transaction and the strip morphs in from the window's corner.
+        panel.contentView?.layoutSubtreeIfNeeded()
+        panel.displayIfNeeded()
+        let current = generation
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.generation == current else { return }
+            withAnimation(.easeOut(duration: 0.12)) { self.state.stripVisible = true }
         }
     }
 
-    func update(selected: Int) {
-        hosting.rootView = HUDView(items: items, selected: selected)
+    func move(to index: Int) {
+        // Measured from the system switcher: ~7 frames at 60fps, decelerating.
+        withAnimation(.spring(duration: 0.15, bounce: 0)) { state.selected = index }
+    }
+
+    /// Fades the strip out.
+    func dismiss() {
+        generation += 1
+        let current = generation
+        guard panel.isVisible else { return }
+        withAnimation(.easeOut(duration: Self.fadeOutDuration)) { state.stripVisible = false }
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.fadeOutDuration) { [weak self] in
+            guard let self, self.generation == current else { return }
+            self.panel.orderOut(nil)
+        }
     }
 
     func hide() {
+        generation += 1
         panel.orderOut(nil)
     }
 
-    private func frame(for size: NSSize, near caret: NSRect?) -> NSRect {
-        let gap: CGFloat = 6
-        if let caret, let screen = NSScreen.screens.first(where: { $0.frame.intersects(caret) || $0.frame.contains(caret.origin) }) {
-            let visible = screen.visibleFrame
-            var origin = NSPoint(x: caret.minX - 12, y: caret.minY - gap - size.height)
-            if origin.y < visible.minY {
-                origin.y = caret.maxY + gap
-            }
-            origin.x = min(max(origin.x, visible.minX + 4), visible.maxX - size.width - 4)
-            origin.y = min(max(origin.y, visible.minY + 4), visible.maxY - size.height - 4)
-            return NSRect(origin: origin, size: size)
+    // MARK: - Layout
+
+    /// Where the selected item is centered: like the system switcher, the highlight is
+    /// centered on the caret horizontally and the strip hangs just below it. Anchoring to
+    /// the caret's bottom also copes with apps that report a too-tall caret (Firefox in an
+    /// empty field).
+    private static func anchor(for caret: NSRect?) -> NSPoint {
+        if let caret {
+            return NSPoint(x: caret.minX, y: caret.minY - 1.5 - HUDLayout.stripHeight / 2)
         }
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens[0]
-        let visible = screen.visibleFrame
-        return NSRect(x: visible.midX - size.width / 2, y: visible.midY - size.height / 2,
-                      width: size.width, height: size.height)
+        return NSPoint(x: screen.visibleFrame.midX, y: screen.visibleFrame.midY)
+    }
+
+    /// The panel is centered on the anchor and wide enough for the strip to slide either way.
+    private func place() {
+        guard let anchor else { return }
+        let size = HUDLayout.canvasSize(itemCount: max(state.items.count, 1))
+        panel.setFrame(NSRect(x: anchor.x - size.width / 2, y: anchor.y - size.height / 2,
+                              width: size.width, height: size.height), display: false)
+        panel.orderFrontRegardless()
+    }
+
+    private func withoutAnimation(_ body: () -> Void) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction, body)
     }
 
     private func makePanel() -> NSPanel {
@@ -60,46 +94,119 @@ final class SwitcherHUD {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = true
+        // The window is larger than what it draws; SwiftUI draws the shadows.
+        panel.hasShadow = false
         panel.ignoresMouseEvents = true
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
 
-        hosting.sizingOptions = [.intrinsicContentSize]
+        let hosting = NSHostingView(rootView: HUDView(state: state))
+        hosting.sizingOptions = []
         panel.contentView = hosting
         return panel
     }
 }
 
-private struct HUDView: View {
+private enum HUDLayout {
+    // Measured from a screen recording of the system switcher.
+    static let itemWidth: CGFloat = 30
+    static let itemHeight: CGFloat = 23
+    static let padding: CGFloat = 3
+    static let margin: CGFloat = 12
+
+    static func stripWidth(itemCount: Int) -> CGFloat {
+        CGFloat(itemCount) * itemWidth + padding * 2
+    }
+
+    static var stripHeight: CGFloat { itemHeight + padding * 2 }
+
+    static func canvasSize(itemCount: Int) -> NSSize {
+        NSSize(width: stripWidth(itemCount: itemCount) * 2 + margin * 2, height: stripHeight + margin * 2)
+    }
+
+    static func itemCenter(_ index: Int) -> CGFloat {
+        padding + CGFloat(index) * itemWidth + itemWidth / 2
+    }
+}
+
+@MainActor
+private final class HUDState: ObservableObject {
     struct Item: Identifiable {
         let id: String
         let label: String
     }
 
-    let items: [Item]
-    let selected: Int
+    @Published var items: [Item] = []
+    /// The item under the highlight; drives the strip's offset.
+    @Published var selected = 0
+    @Published var stripVisible = false
+}
+
+private struct HUDView: View {
+    @ObservedObject var state: HUDState
 
     var body: some View {
-        HStack(spacing: 1) {
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                let isSelected = index == selected
-                Text(item.label)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(isSelected ? Color.white : Color.primary)
-                    .padding(.horizontal, 8)
-                    .frame(minWidth: 30, minHeight: 24)
-                    .background {
-                        if isSelected {
-                            Capsule().fill(Color.accentColor)
-                        }
-                    }
+        let canvas = HUDLayout.canvasSize(itemCount: max(state.items.count, 1))
+        let center = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
+        let stripWidth = HUDLayout.stripWidth(itemCount: state.items.count)
+        // The strip slides so the selected item sits at the center; the highlight never moves.
+        let stripCenter = CGPoint(x: center.x - HUDLayout.itemCenter(state.selected) + stripWidth / 2, y: center.y)
+        ZStack {
+            if !state.items.isEmpty {
+                ZStack {
+                    stripBackground
+                        .frame(width: stripWidth, height: HUDLayout.stripHeight)
+                        .position(stripCenter)
+                    highlight
+                        .foregroundStyle(Color.accentColor)
+                        .position(center)
+                    // Labels are drawn twice, plain and white, with the white copy masked by
+                    // the highlight, so whatever part of a label is under it turns white.
+                    labels(highlighted: false)
+                        .position(stripCenter)
+                    labels(highlighted: true)
+                        .position(stripCenter)
+                        .mask { highlight.position(center) }
+                }
+                .opacity(state.stripVisible ? 1 : 0)
+                .scaleEffect(state.stripVisible ? 1 : 0.96)
             }
         }
-        .padding(3)
-        .background(VisualEffectBackground().clipShape(Capsule()))
-        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5))
-        .fixedSize()
+        .frame(width: canvas.width, height: canvas.height)
+    }
+
+    /// Liquid Glass where available, like the system switcher; a HUD material before that.
+    @ViewBuilder private var stripBackground: some View {
+        if #available(macOS 26, *) {
+            Color.clear.glassEffect(.regular, in: Capsule())
+        } else {
+            VisualEffectBackground()
+                .clipShape(Capsule())
+                .overlay(Capsule().strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5))
+                .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+        }
+    }
+
+    private var highlight: some View {
+        Capsule().frame(width: HUDLayout.itemWidth, height: HUDLayout.itemHeight)
+    }
+
+    private func labels(highlighted: Bool) -> some View {
+        HStack(spacing: 0) {
+            ForEach(state.items) { item in
+                label(item.label, highlighted: highlighted)
+            }
+        }
+        .padding(.horizontal, HUDLayout.padding)
+    }
+
+    private func label(_ text: String, highlighted: Bool) -> some View {
+        Text(text)
+            .font(Font(LabelStyle.font(for: text)))
+            .foregroundStyle(highlighted ? Color.white : Color.primary)
+            .fixedSize()
+            .scaleEffect(x: LabelStyle.scaleX(for: text), y: 1)
+            .frame(width: HUDLayout.itemWidth, height: HUDLayout.itemHeight)
     }
 }
 
