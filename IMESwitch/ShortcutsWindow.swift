@@ -168,6 +168,8 @@ private struct ShortcutsView: View {
             section("Switcher", footer: footer(for: ShortcutsModel.switcherID,
                                                idle: "Hold the modifiers and press the key repeatedly to cycle; add ⇧ to go back.")) {
                 switcherRow
+                Divider().padding(.leading, 12)
+                cycleThroughRow
             }
             section("Input Sources", footer: footer(for: nil,
                                                     idle: "Press a shortcut anywhere to switch straight to that input source.")) {
@@ -245,6 +247,32 @@ private struct ShortcutsView: View {
                 toggle: { model.toggleRecording(id) },
                 clear: { model.clear(id) }
             )
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+    }
+
+    /// Which sources the switcher cycles through; the rest stay reachable by shortcut.
+    private var cycleThroughRow: some View {
+        let included = model.sources.filter { !store.excluded.contains($0.id) }
+        return HStack(spacing: 12) {
+            Text("Cycle Through")
+            Spacer(minLength: 12)
+            Menu {
+                ForEach(model.sources, id: \.id) { source in
+                    Toggle(source.name, isOn: Binding(
+                        get: { !store.excluded.contains(source.id) },
+                        set: { store.setExcluded(!$0, for: source.id) }
+                    ))
+                }
+            } label: {
+                if included.count == model.sources.count {
+                    Text("All Input Sources")
+                } else {
+                    Text("\(included.count) of \(model.sources.count)")
+                }
+            }
+            .fixedSize()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -345,5 +373,7 @@ private struct ShortcutField: View {
     ]
     // ⌃⌥1 for U.S., to show a recorded shortcut and its clear button.
     model.store.set(Shortcut(keyCode: 18, flags: [.maskControl, .maskAlternate]), for: "com.apple.keylayout.US")
+    // Hiragana skipped when cycling.
+    model.store.setExcluded(true, for: "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese")
     return ShortcutsView(model: model)
 }

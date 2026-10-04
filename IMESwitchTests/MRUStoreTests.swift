@@ -27,6 +27,23 @@ struct MRUStoreTests {
         #expect(store.order == ["c", "b", "d"])
     }
 
+    @Test func cycleSkipsExcludedSources() {
+        let store = MRUStore(defaults: makeTestDefaults())
+        store.reconcile(available: ["a", "b", "c", "d"])
+        #expect(store.cycle(excluding: ["b", "d"]) == ["a", "c"])
+        #expect(store.cycle(excluding: []) == ["a", "b", "c", "d"])
+    }
+
+    @Test func cycleStartsFromExcludedCurrentSource() {
+        // Reached by shortcut or from the menu: still the starting point, so a tap goes
+        // back to the last included source.
+        let store = MRUStore(defaults: makeTestDefaults())
+        store.reconcile(available: ["a", "b", "c"])
+        store.promote("c")
+        #expect(store.cycle(excluding: ["c"]) == ["c", "a", "b"])
+        #expect(store.cycle(excluding: ["c", "a"]) == ["c", "b"])
+    }
+
     @Test func persistsAcrossInstances() {
         let defaults = makeTestDefaults()
         let first = MRUStore(defaults: defaults)

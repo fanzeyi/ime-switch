@@ -13,6 +13,12 @@ final class MRUStore {
         order = defaults.stringArray(forKey: Self.defaultsKey) ?? []
     }
 
+    /// The order to cycle through: the current source first, as the starting point even if
+    /// it's excluded, then the others that aren't.
+    func cycle(excluding excluded: Set<String>) -> [String] {
+        order.enumerated().filter { $0.offset == 0 || !excluded.contains($0.element) }.map(\.element)
+    }
+
     func promote(_ id: String) {
         guard order.first != id else { return }
         order.removeAll { $0 == id }

@@ -27,6 +27,7 @@ IMESwitch works like ⌘Tab: only the input source you release on counts, so the
 - **Tap ⌘Space** to switch to the previous input source. Tap again to come back.
 - **Hold ⌘ and press Space repeatedly** to walk through all input sources in most-recently-used order, with a switcher next to the text cursor modeled on the system one. Release ⌘ to pick one. **⌘⇧Space** goes backwards, **Esc** cancels.
 - **Your own shortcut**: keep Spotlight on ⌘Space and use ⌥Space, ⌃Space or anything else with ⌘, ⌃ or ⌥ instead.
+- **Skip rarely used input sources** when cycling, while keeping them enabled and reachable by shortcut or from the menu.
 - **Per-source shortcuts**: give any input source its own shortcut, such as ⌃⌥1 for ABC and ⌃⌥2 for Pinyin, to jump straight to it. Shortcuts that macOS already uses are rejected.
 - **Native look**: the menu bar badge matches the system one (简拼, あ, DE, РУ, …), using the labels macOS provides for each input source.
 - **Show Emoji & Symbols** from the menu, in whichever app you're typing in.
@@ -54,7 +55,7 @@ If you skip a step, the menu shows "Finish Setup…" until it's done. You can al
 
 ⌘Space is the default; to use another shortcut, choose **Configure Shortcuts…** from the menu bar icon and record one under Switch Input Sources. It needs ⌘, ⌃ or ⌥ to hold down while cycling, and ⇧ always goes backwards.
 
-In the same window, click the button next to an input source to give it its own shortcut. A shortcut needs ⌘, ⌃ or ⌥, or can be a function key on its own. To add or remove input sources, choose **Edit Input Sources…**.
+To skip rarely used input sources when cycling, untick them under **Cycle Through** in the same window. Click the button next to an input source to give it its own shortcut. A shortcut needs ⌘, ⌃ or ⌥, or can be a function key on its own. To add or remove input sources, choose **Edit Input Sources…**.
 
 ## Privacy
 

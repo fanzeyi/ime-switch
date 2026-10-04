@@ -64,6 +64,20 @@ struct ShortcutStoreTests {
         #expect(second.switcher == optionSpace)
     }
 
+    @Test func excludeAndInclude() {
+        let defaults = makeTestDefaults()
+        let store = ShortcutStore(defaults: defaults)
+        var changes = 0
+        store.onChange = { changes += 1 }
+        store.setExcluded(true, for: us)
+        store.setExcluded(true, for: us) // no change
+        #expect(store.excluded == [us])
+        #expect(ShortcutStore(defaults: defaults).excluded == [us])
+        store.setExcluded(false, for: us)
+        #expect(store.excluded.isEmpty)
+        #expect(changes == 2)
+    }
+
     @Test func invalidSavedSwitcherFallsBackToDefault() throws {
         let defaults = makeTestDefaults()
         let shiftSpace = Shortcut(keyCode: 49, flags: .maskShift)

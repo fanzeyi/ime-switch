@@ -182,16 +182,19 @@ struct Shortcut: Codable, Hashable, Sendable {
     }
 }
 
-/// The switcher shortcut, and per-input-source shortcuts keyed by input source ID. The
-/// latter are kept for sources that are currently disabled, so re-enabling one brings its
-/// shortcut back.
+/// The switcher shortcut, per-input-source shortcuts keyed by input source ID, and the
+/// sources the switcher skips. Settings for sources that are currently disabled are kept,
+/// so re-enabling one brings them back.
 @MainActor
 final class ShortcutStore: ObservableObject {
     private static let defaultsKey = "InputSourceShortcuts"
     nonisolated private static let switcherDefaultsKey = "SwitcherShortcut"
+    private static let excludedDefaultsKey = "ExcludedInputSources"
 
     @Published private(set) var shortcuts: [String: Shortcut]
     @Published private(set) var switcher: Shortcut
+    /// Sources the switcher skips; they're still reachable by shortcut or from the menu.
+    @Published private(set) var excluded: Set<String>
 
     /// The saved switcher, for code that doesn't hold the store.
     nonisolated static var savedSwitcher: Shortcut { switcher(in: .standard) }
@@ -219,6 +222,18 @@ final class ShortcutStore: ObservableObject {
             shortcuts = [:]
         }
         switcher = Self.switcher(in: defaults)
+        excluded = Set(defaults.stringArray(forKey: Self.excludedDefaultsKey) ?? [])
+    }
+
+    func setExcluded(_ isExcluded: Bool, for id: String) {
+        guard excluded.contains(id) != isExcluded else { return }
+        if isExcluded {
+            excluded.insert(id)
+        } else {
+            excluded.remove(id)
+        }
+        defaults.set(excluded.sorted(), forKey: Self.excludedDefaultsKey)
+        onChange?()
     }
 
     /// Changes the switcher, taking it away from any input source.

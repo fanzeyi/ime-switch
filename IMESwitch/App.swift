@@ -92,7 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case let .press(first, reverse):
             if first {
                 syncMRU()
-                candidates = mru.order
+                candidates = mru.cycle(excluding: shortcuts.excluded)
                 index = 0
             }
             guard candidates.count > 1 else { return }
