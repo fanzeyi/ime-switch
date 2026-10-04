@@ -1,7 +1,8 @@
 import AppKit
 import Carbon
 
-/// A key plus modifiers that switches straight to one input source.
+/// A key plus modifiers: the switcher shortcut, or one that switches straight to an input
+/// source.
 struct Shortcut: Codable, Hashable, Sendable {
     let keyCode: Int64
     /// Raw `CGEventFlags`, limited to `Shortcut.modifierMask`.
@@ -21,21 +22,30 @@ struct Shortcut: Codable, Hashable, Sendable {
 
     var flags: CGEventFlags { CGEventFlags(rawValue: modifiers) }
 
+    static let defaultSwitcher = Shortcut(keyCode: HotkeyTap.spaceKey, flags: .maskCommand)
+
+    /// The same shortcut with ⇧ added, which cycles backwards when this is the switcher.
+    var reversed: Shortcut { Shortcut(keyCode: keyCode, flags: flags.union(.maskShift)) }
+
+    private var hasHoldableModifier: Bool {
+        !flags.isDisjoint(with: [.maskCommand, .maskControl, .maskAlternate])
+    }
+
     enum Problem {
         case needsModifier
         case reserved
         case usedBySystem
     }
 
-    /// Plain keys would fire while typing, so a shortcut needs ⌘, ⌃ or ⌥, unless it is a
-    /// function key. ⌘Space and ⌘⇧Space belong to the MRU switcher, and enabled macOS
-    /// shortcuts (Mission Control, screenshots, …) would fight with ours.
-    var problem: Problem? {
-        if keyCode == HotkeyTap.spaceKey, flags.contains(.maskCommand), flags.isSubset(of: [.maskCommand, .maskShift]) {
+    /// For a per-source shortcut. Plain keys would fire while typing, so it needs ⌘, ⌃ or
+    /// ⌥, unless it is a function key. The switcher is taken (its ⇧ variant isn't: that only
+    /// goes backwards while cycling), and enabled macOS shortcuts (Mission Control,
+    /// screenshots, …) would fight with ours.
+    func problem(switcher: Shortcut) -> Problem? {
+        if self == switcher {
             return .reserved
         }
-        let hasModifier = !flags.isDisjoint(with: [.maskCommand, .maskControl, .maskAlternate])
-        if !hasModifier, !Self.functionKeys.keys.contains(keyCode) {
+        if !hasHoldableModifier, !Self.functionKeys.keys.contains(keyCode) {
             return .needsModifier
         }
         if Self.systemShortcuts().contains(self) {
@@ -43,6 +53,24 @@ struct Shortcut: Codable, Hashable, Sendable {
         }
         return nil
     }
+
+    enum SwitcherProblem {
+        case needsHeldModifier
+        case includesShift
+        case escape
+    }
+
+    /// For the switcher, which works like ⌘Tab: it needs ⌘, ⌃ or ⌥ to hold down while
+    /// cycling, ⇧ is left for going backwards and Esc for cancelling. A system shortcut on
+    /// the same keys isn't a problem here; setup asks to turn it off.
+    var switcherProblem: SwitcherProblem? {
+        if keyCode == Self.escapeKey { return .escape }
+        if flags.contains(.maskShift) { return .includesShift }
+        if !hasHoldableModifier { return .needsHeldModifier }
+        return nil
+    }
+
+    static let escapeKey: Int64 = 53
 
     /// The enabled shortcuts in System Settings → Keyboard → Keyboard Shortcuts.
     static func systemShortcuts() -> Set<Shortcut> {
@@ -154,13 +182,25 @@ struct Shortcut: Codable, Hashable, Sendable {
     }
 }
 
-/// Per-input-source shortcuts, keyed by input source ID. Kept for sources that are
-/// currently disabled, so re-enabling one brings its shortcut back.
+/// The switcher shortcut, and per-input-source shortcuts keyed by input source ID. The
+/// latter are kept for sources that are currently disabled, so re-enabling one brings its
+/// shortcut back.
 @MainActor
 final class ShortcutStore: ObservableObject {
     private static let defaultsKey = "InputSourceShortcuts"
+    nonisolated private static let switcherDefaultsKey = "SwitcherShortcut"
 
     @Published private(set) var shortcuts: [String: Shortcut]
+    @Published private(set) var switcher: Shortcut
+
+    /// The saved switcher, for code that doesn't hold the store.
+    nonisolated static var savedSwitcher: Shortcut {
+        guard let data = UserDefaults.standard.data(forKey: switcherDefaultsKey),
+              let shortcut = try? JSONDecoder().decode(Shortcut.self, from: data),
+              shortcut.switcherProblem == nil
+        else { return .defaultSwitcher }
+        return shortcut
+    }
 
     /// Called after any change.
     var onChange: (() -> Void)?
@@ -172,6 +212,18 @@ final class ShortcutStore: ObservableObject {
         } else {
             shortcuts = [:]
         }
+        switcher = Self.savedSwitcher
+    }
+
+    /// Changes the switcher, taking it away from any input source.
+    func setSwitcher(_ shortcut: Shortcut) {
+        switcher = shortcut
+        UserDefaults.standard.set(try? JSONEncoder().encode(shortcut), forKey: Self.switcherDefaultsKey)
+        if shortcuts.values.contains(shortcut) {
+            shortcuts = shortcuts.filter { $0.value != shortcut }
+            saveShortcuts()
+        }
+        onChange?()
     }
 
     func sourceID(for shortcut: Shortcut) -> String? {
@@ -184,9 +236,13 @@ final class ShortcutStore: ObservableObject {
             shortcuts = shortcuts.filter { $0.value != shortcut }
         }
         shortcuts[id] = shortcut
+        saveShortcuts()
+        onChange?()
+    }
+
+    private func saveShortcuts() {
         if let data = try? JSONEncoder().encode(shortcuts) {
             UserDefaults.standard.set(data, forKey: Self.defaultsKey)
         }
-        onChange?()
     }
 }

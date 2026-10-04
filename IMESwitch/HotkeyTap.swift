@@ -1,13 +1,14 @@
 import AppKit
 import CoreGraphics
 
-/// Intercepts cmd+space system-wide and reports press / release / cancel, the way
-/// cmd+tab works: holding cmd while pressing space repeatedly advances, releasing
-/// cmd commits, Esc cancels. Also catches the per-input-source shortcuts.
+/// Intercepts the switcher shortcut (⌘Space by default) system-wide and reports press /
+/// release / cancel, the way ⌘Tab works: holding its modifiers while pressing its key
+/// repeatedly advances, adding ⇧ goes back, releasing a modifier commits, Esc cancels.
+/// Also catches the per-input-source shortcuts.
 @MainActor
 final class HotkeyTap {
     enum Event {
-        /// Space pressed with cmd held. `first` is true for the press that starts a cycle.
+        /// The switcher pressed. `first` is true for the press that starts a cycle.
         case press(first: Bool, reverse: Bool)
         case commit
         case cancel
@@ -16,12 +17,13 @@ final class HotkeyTap {
     }
 
     var handler: ((Event) -> Void)?
+    var switcher = Shortcut.defaultSwitcher
     var shortcuts: Set<Shortcut> = []
-    /// Lets shortcuts through while the user records a new one.
+    /// Lets the switcher and shortcuts through while the user records a new one.
     var shortcutsPaused = false
 
     nonisolated static let spaceKey: Int64 = 49
-    private static let escapeKey: Int64 = 53
+    private static let escapeKey = Shortcut.escapeKey
     private static let relevantModifiers: CGEventFlags = [.maskCommand, .maskShift, .maskAlternate, .maskControl]
 
     private var tap: CFMachPort?
@@ -73,7 +75,8 @@ final class HotkeyTap {
 
         case .keyDown:
             let mods = flags.intersection(Self.relevantModifiers)
-            if key == Self.spaceKey, mods == .maskCommand || (cycling && mods == [.maskCommand, .maskShift]) {
+            if key == switcher.keyCode, !shortcutsPaused || cycling,
+               mods == switcher.flags || (cycling && mods == switcher.reversed.flags) {
                 let first = !cycling
                 cycling = true
                 swallowedKeys.insert(key)
@@ -98,7 +101,7 @@ final class HotkeyTap {
             return swallowedKeys.remove(key) != nil
 
         case .flagsChanged:
-            if cycling, !flags.contains(.maskCommand) {
+            if cycling, !flags.contains(switcher.flags) {
                 cycling = false
                 handler?(.commit)
             }

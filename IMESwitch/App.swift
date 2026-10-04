@@ -63,9 +63,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         updateStatusIcon()
         tap.handler = { [weak self] event in self?.handle(event) }
+        tap.switcher = shortcuts.switcher
         tap.shortcuts = Set(shortcuts.shortcuts.values)
         shortcuts.onChange = { [weak self] in
             guard let self else { return }
+            self.tap.switcher = self.shortcuts.switcher
             self.tap.shortcuts = Set(self.shortcuts.shortcuts.values)
         }
         shortcutsWindow.onRecordingChanged = { [weak self] recording in

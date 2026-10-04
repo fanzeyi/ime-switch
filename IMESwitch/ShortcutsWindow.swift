@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Lists the enabled input sources, each with a recorder for a shortcut that switches
-/// straight to it.
+/// Records the switcher shortcut, and lists the enabled input sources, each with a recorder
+/// for a shortcut that switches straight to it.
 @MainActor
 final class ShortcutsWindow {
     private let model: ShortcutsModel
@@ -27,7 +27,7 @@ final class ShortcutsWindow {
         if window == nil {
             let hosting = NSHostingController(rootView: ShortcutsView(model: model))
             let window = NSWindow(contentViewController: hosting)
-            window.title = String(localized: "Input Source Shortcuts")
+            window.title = String(localized: "Shortcuts")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             NotificationCenter.default.addObserver(
@@ -50,6 +50,9 @@ final class ShortcutsWindow {
 
 @MainActor
 private final class ShortcutsModel: ObservableObject {
+    /// Recording ID for the switcher; input source IDs are reverse-DNS, so it can't clash.
+    static let switcherID = "switcher"
+
     let store: ShortcutStore
     @Published var sources: [InputSource] = []
     @Published private(set) var recordingID: String?
@@ -94,36 +97,60 @@ private final class ShortcutsModel: ObservableObject {
         let shortcut = Shortcut(event: event)
         if shortcut.flags.isEmpty {
             switch shortcut.keyCode {
-            case 53: // Esc
+            case Shortcut.escapeKey:
                 stopRecording()
                 return
             case 51, 117: // Delete, Forward Delete
-                store.set(nil, for: id)
-                stopRecording()
+                clear(id)
                 return
             default:
                 break
             }
         }
-        switch shortcut.problem {
+        if id == Self.switcherID {
+            recordSwitcher(shortcut)
+            return
+        }
+        switch shortcut.problem(switcher: store.switcher) {
         case .needsModifier:
-            message = "Use ⌘, ⌃ or ⌥ with the key, or a function key."
-            NSSound.beep()
+            reject("Use ⌘, ⌃ or ⌥ with the key, or a function key.")
         case .reserved:
-            message = "⌘Space is already used to cycle input sources."
-            NSSound.beep()
+            reject("\(store.switcher.displayString) is already used to cycle input sources.")
         case .usedBySystem:
-            message = "macOS already uses this shortcut. Pick another, or turn it off in Keyboard Shortcuts."
-            NSSound.beep()
+            reject("macOS already uses this shortcut. Pick another, or turn it off in Keyboard Shortcuts.")
         case nil:
             store.set(shortcut, for: id)
             stopRecording()
         }
     }
 
+    private func recordSwitcher(_ shortcut: Shortcut) {
+        switch shortcut.switcherProblem {
+        case .needsHeldModifier:
+            reject("Use ⌘, ⌃ or ⌥ with the key, to hold down while cycling.")
+        case .includesShift:
+            reject("⇧ is left for cycling backwards.")
+        case .escape:
+            reject("Esc is left for cancelling.")
+        case nil:
+            store.setSwitcher(shortcut)
+            stopRecording()
+        }
+    }
+
+    private func reject(_ reason: LocalizedStringKey) {
+        message = reason
+        NSSound.beep()
+    }
+
+    /// Clears an input source's shortcut, or resets the switcher to ⌘Space.
     func clear(_ id: String) {
         stopRecording()
-        store.set(nil, for: id)
+        if id == Self.switcherID {
+            store.setSwitcher(.defaultSwitcher)
+        } else {
+            store.set(nil, for: id)
+        }
     }
 }
 
@@ -138,6 +165,9 @@ private struct ShortcutsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
+            switcherRow
+                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+
             Text("Press a shortcut anywhere to switch straight to that input source.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -169,6 +199,37 @@ private struct ShortcutsView: View {
         .frame(width: 420)
     }
 
+    private var switcherRow: some View {
+        let id = ShortcutsModel.switcherID
+        let conflicts = model.recordingID == id ? [] : Permissions.conflictingSystemShortcuts()
+        return HStack(spacing: 12) {
+            Image(systemName: "arrow.left.arrow.right")
+                .frame(width: 22)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Switch Input Sources")
+                Text("Hold and press repeatedly to cycle; add ⇧ to go back.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 12)
+            if !conflicts.isEmpty {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.yellow)
+                    .help("macOS uses this shortcut too: \(conflicts.formatted(.list(type: .and))). Turn it off in Keyboard Shortcuts.")
+            }
+            RecorderButton(
+                shortcut: store.switcher,
+                isRecording: model.recordingID == id,
+                canClear: store.switcher != .defaultSwitcher,
+                clearHelp: "Reset to \(Shortcut.defaultSwitcher.displayString)",
+                toggle: { model.toggleRecording(id) },
+                clear: { model.clear(id) }
+            )
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+    }
+
     private func row(_ source: InputSource) -> some View {
         HStack(spacing: 12) {
             Image(nsImage: BadgeImage.make(label: source.label, outlined: source.isKeyboardLayout, color: .labelColor))
@@ -179,7 +240,7 @@ private struct ShortcutsView: View {
             // A shortcut can become taken after it was recorded, e.g. by a system shortcut
             // turned on later.
             if let shortcut = store.shortcuts[source.id], model.recordingID != source.id,
-               shortcut.problem == .usedBySystem {
+               shortcut.problem(switcher: store.switcher) == .usedBySystem {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.yellow)
                     .help("macOS also uses this shortcut, so it may not work.")
@@ -187,6 +248,8 @@ private struct ShortcutsView: View {
             RecorderButton(
                 shortcut: store.shortcuts[source.id],
                 isRecording: model.recordingID == source.id,
+                canClear: store.shortcuts[source.id] != nil,
+                clearHelp: "Clear Shortcut",
                 toggle: { model.toggleRecording(source.id) },
                 clear: { model.clear(source.id) }
             )
@@ -199,6 +262,8 @@ private struct ShortcutsView: View {
 private struct RecorderButton: View {
     let shortcut: Shortcut?
     let isRecording: Bool
+    let canClear: Bool
+    let clearHelp: LocalizedStringKey
     let toggle: () -> Void
     let clear: () -> Void
 
@@ -225,9 +290,9 @@ private struct RecorderButton: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-            .help("Clear Shortcut")
-            .opacity(shortcut == nil || isRecording ? 0 : 1)
-            .disabled(shortcut == nil || isRecording)
+            .help(clearHelp)
+            .opacity(!canClear || isRecording ? 0 : 1)
+            .disabled(!canClear || isRecording)
         }
     }
 }

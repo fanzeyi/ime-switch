@@ -29,30 +29,37 @@ enum Permissions {
         if let url = URL(string: string) { NSWorkspace.shared.open(url) }
     }
 
-    /// System shortcuts that are still bound to cmd+space and would fight with us.
+    /// Enabled system shortcuts on the switcher's keys, which would fight with it, by name.
+    /// Its ⇧ variant only matters while cycling, when our event tap already has the keys;
+    /// macOS also keeps an enabled ⌘⇧Space (ID 263) that System Settings doesn't show.
     static func conflictingSystemShortcuts() -> [String] {
-        let names: [String: String] = [
-            "60": String(localized: "Select the previous input source"),
-            "61": String(localized: "Select next source in Input menu"),
-            "64": String(localized: "Show Spotlight search"),
+        let switcher = ShortcutStore.savedSwitcher
+        let names: [Int: String] = [
+            60: String(localized: "Select the previous input source"),
+            61: String(localized: "Select next source in Input menu"),
+            64: String(localized: "Show Spotlight search"),
         ]
         // Pick up changes made in System Settings since the last read.
         CFPreferencesAppSynchronize("com.apple.symbolichotkeys" as CFString)
-        guard let hotkeys = CFPreferencesCopyAppValue(
+        let hotkeys = CFPreferencesCopyAppValue(
             "AppleSymbolicHotKeys" as CFString, "com.apple.symbolichotkeys" as CFString
-        ) as? [String: Any] else {
-            return []
-        }
-        return names.keys.sorted().compactMap { key in
-            guard let entry = hotkeys[key] as? [String: Any],
-                  (entry["enabled"] as? Bool) == true,
+        ) as? [String: Any] ?? [:]
+        var conflicts: [String] = []
+        for (key, entry) in hotkeys.sorted(by: { (Int($0.key) ?? 0) < (Int($1.key) ?? 0) }) {
+            guard let id = Int(key),
+                  let entry = entry as? [String: Any],
+                  entry["enabled"] as? Bool == true,
                   let value = entry["value"] as? [String: Any],
-                  let params = value["parameters"] as? [Int],
-                  params.count == 3,
-                  params[1] == 49,
-                  params[2] == Int(CGEventFlags.maskCommand.rawValue)
-            else { return nil }
-            return names[key]
+                  let params = value["parameters"] as? [Int], params.count == 3,
+                  // [character, key code, modifiers as NSEvent/CGEvent flags]
+                  Shortcut(keyCode: Int64(params[1]), flags: CGEventFlags(rawValue: UInt64(params[2]))) == switcher
+            else { continue }
+            conflicts.append(names[id] ?? String(localized: "Another system shortcut"))
         }
+        // Shortcuts never changed from their default may be missing from the preferences.
+        if conflicts.isEmpty, Shortcut.systemShortcuts().contains(switcher) {
+            conflicts.append(String(localized: "Another system shortcut"))
+        }
+        return conflicts
     }
 }

@@ -1,6 +1,28 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ is already used to cycle input sources.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ は入力ソースの切り替えに使われています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 已用于循环切换输入法。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 已用於循環切換輸入法。"
+          }
+        }
+      }
+    },
     "Allow Accessibility access": {
       "localizations": {
         "ja": {
@@ -19,6 +41,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "允許輔助使用權限"
+          }
+        }
+      }
+    },
+    "Another system shortcut": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ほかのシステムショートカット"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另一个系统快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另一個系統快速鍵"
           }
         }
       }
@@ -133,24 +177,68 @@
         }
       }
     },
-    "IMESwitch needs it to intercept ⌘Space and to find the text cursor.": {
+    "Esc is left for cancelling.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌘Space を受け取り、テキストカーソルの位置を調べるために必要です。"
+            "value": "Esc はキャンセルに使われます。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "IMESwitch 需要它来接管 ⌘Space，并找到文本光标的位置。"
+            "value": "Esc 留作取消。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "IMESwitch 需要它來接管 ⌘Space，並找到文字游標的位置。"
+            "value": "Esc 留作取消。"
+          }
+        }
+      }
+    },
+    "Hold and press repeatedly to cycle; add ⇧ to go back.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "押したまま繰り返し押すと順に切り替わります。⇧ を加えると逆方向です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住并重复按下以循环切换，加上 ⇧ 反向。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住並重複按下以循環切換，加上 ⇧ 反向。"
+          }
+        }
+      }
+    },
+    "IMESwitch needs it to intercept %@ and to find the text cursor.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ を受け取り、テキストカーソルの位置を調べるために必要です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch 需要它来接管 %@，并找到文本光标的位置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch 需要它來接管 %@，並找到文字游標的位置。"
           }
         }
       }
@@ -173,28 +261,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "請在「鍵盤快速鍵」中關閉：%@"
-          }
-        }
-      }
-    },
-    "Input Source Shortcuts": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "入力ソースのショートカット"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "输入法快捷键"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "輸入法快速鍵"
           }
         }
       }
@@ -243,24 +309,24 @@
         }
       }
     },
-    "No system shortcut is using ⌘Space.": {
+    "No system shortcut is using %@.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌘Space を使っているシステムショートカットはありません。"
+            "value": "%@ を使っているシステムショートカットはありません。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有系统快捷键占用 ⌘Space。"
+            "value": "没有系统快捷键占用 %@。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有系統快速鍵佔用 ⌘Space。"
+            "value": "沒有系統快速鍵佔用 %@。"
           }
         }
       }
@@ -375,6 +441,28 @@
         }
       }
     },
+    "Reset to %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ に戻す"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复为 %@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢復為 %@"
+          }
+        }
+      }
+    },
     "Select next source in Input menu": {
       "localizations": {
         "ja": {
@@ -441,6 +529,28 @@
         }
       }
     },
+    "Shortcuts": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショートカット"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速鍵"
+          }
+        }
+      }
+    },
     "Show Emoji & Symbols": {
       "localizations": {
         "ja": {
@@ -485,46 +595,68 @@
         }
       }
     },
-    "Turn off the system ⌘Space shortcut": {
+    "Switch Input Sources": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "システムの ⌘Space ショートカットをオフにする"
+            "value": "入力ソースを切り替える"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关闭系统的 ⌘Space 快捷键"
+            "value": "切换输入法"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "關閉系統的 ⌘Space 快速鍵"
+            "value": "切換輸入法"
           }
         }
       }
     },
-    "Two quick steps and ⌘Space will switch input sources in most-recently-used order.": {
+    "Turn off the system %@ shortcut": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "2 つの手順で、⌘Space で最近使った順に入力ソースを切り替えられるようになります。"
+            "value": "システムの %@ ショートカットをオフにする"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "只需两步，⌘Space 就会按最近使用的顺序切换输入法。"
+            "value": "关闭系统的 %@ 快捷键"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "只需兩步，⌘Space 就會依最近使用的順序切換輸入方式。"
+            "value": "關閉系統的 %@ 快速鍵"
+          }
+        }
+      }
+    },
+    "Two quick steps and %@ will switch input sources in most-recently-used order.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 つの手順で、%@ で最近使った順に入力ソースを切り替えられるようになります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只需两步，%@ 就会按最近使用的顺序切换输入法。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只需兩步，%@ 就會依最近使用的順序切換輸入方式。"
           }
         }
       }
@@ -595,6 +727,28 @@
         }
       }
     },
+    "Use ⌘, ⌃ or ⌥ with the key, to hold down while cycling.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切り替え中に押し続けるため、⌘、⌃、⌥ のいずれかと組み合わせてください。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请搭配 ⌘、⌃ 或 ⌥ 使用，循环切换时需要按住它。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請搭配 ⌘、⌃ 或 ⌥ 使用，循環切換時需要按住它。"
+          }
+        }
+      }
+    },
     "Welcome to IMESwitch": {
       "localizations": {
         "ja": {
@@ -661,24 +815,46 @@
         }
       }
     },
-    "⌘Space is already used to cycle input sources.": {
+    "macOS uses this shortcut too: %@. Turn it off in Keyboard Shortcuts.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌘Space は入力ソースの切り替えに使われています。"
+            "value": "macOS もこのショートカットを使っています：%@。「キーボードショートカット」でオフにしてください。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌘Space 已用于循环切换输入法。"
+            "value": "macOS 也在使用此快捷键：%@。请在“键盘快捷键”中将其关闭。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌘Space 已用於循環切換輸入法。"
+            "value": "macOS 也在使用此快速鍵：%@。請在「鍵盤快速鍵」中將其關閉。"
+          }
+        }
+      }
+    },
+    "⇧ is left for cycling backwards.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⇧ は逆方向の切り替えに使われます。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⇧ 留作反向切换。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⇧ 留作反向切換。"
           }
         }
       }

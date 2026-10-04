@@ -3,7 +3,8 @@ import ServiceManagement
 import SwiftUI
 
 /// Walks through the two system settings IMESwitch needs: Accessibility access, and
-/// turning off the system shortcuts that also use ⌘Space. Each step's status updates live.
+/// turning off the system shortcuts on the switcher's keys (⌘Space by default). Each
+/// step's status updates live.
 @MainActor
 final class OnboardingWindow {
     private let model = OnboardingModel()
@@ -46,6 +47,7 @@ private final class OnboardingModel: ObservableObject {
     @Published var accessibilityGranted = false
     @Published var conflicts: [String] = []
     @Published var launchAtLogin = false
+    @Published var switcher = ""
 
     private var timer: Timer?
 
@@ -54,6 +56,7 @@ private final class OnboardingModel: ObservableObject {
     func refresh() {
         accessibilityGranted = Permissions.isAccessibilityTrusted
         conflicts = Permissions.conflictingSystemShortcuts()
+        switcher = ShortcutStore.savedSwitcher.displayString
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
 
@@ -95,7 +98,7 @@ private struct OnboardingView: View {
                     .frame(width: 72, height: 72)
                 Text("Welcome to IMESwitch")
                     .font(.title2.weight(.semibold))
-                Text("Two quick steps and ⌘Space will switch input sources in most-recently-used order.")
+                Text("Two quick steps and \(model.switcher) will switch input sources in most-recently-used order.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -107,7 +110,7 @@ private struct OnboardingView: View {
                     number: 1,
                     done: model.accessibilityGranted,
                     title: "Allow Accessibility access",
-                    detail: "IMESwitch needs it to intercept ⌘Space and to find the text cursor.",
+                    detail: "IMESwitch needs it to intercept \(model.switcher) and to find the text cursor.",
                     action: "Open Settings…"
                 ) {
                     Permissions.requestAccessibility()
@@ -116,9 +119,9 @@ private struct OnboardingView: View {
                 StepRow(
                     number: 2,
                     done: model.conflicts.isEmpty,
-                    title: "Turn off the system ⌘Space shortcut",
+                    title: "Turn off the system \(model.switcher) shortcut",
                     detail: model.conflicts.isEmpty
-                        ? "No system shortcut is using ⌘Space."
+                        ? "No system shortcut is using \(model.switcher)."
                         : "In Keyboard Shortcuts, turn off: \(model.conflicts.formatted(.list(type: .and)))",
                     action: "Open Keyboard Settings…"
                 ) {
