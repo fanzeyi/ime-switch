@@ -19,8 +19,8 @@ targets:
       properties:
         CFBundleName: $(APP_DISPLAY_NAME)
         CFBundleDisplayName: $(APP_DISPLAY_NAME)
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "0.2.0"
+        CFBundleVersion: "2"
         LSUIElement: true
     # Signing lives in Signing.xcconfig (ad-hoc by default, overridable in a
     # git-ignored Local.xcconfig), since target settings here would win over it.
