@@ -130,20 +130,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         pendingHUD?.cancel()
         pendingHUD = nil
         guard !candidates.isEmpty else { return }
-        if let caret = CaretLocator.caretRect() {
-            presentHUD(caret: caret)
-            return
-        }
-        // No caret through Accessibility (e.g. Ghostty): ask the app itself.
+        // Ask the app itself first: it places the system switcher with the same caret the
+        // input system uses, which Accessibility often gets wrong (TextEdit, System
+        // Settings) or doesn't have at all (Ghostty).
+        let fallback = CaretLocator.caretRect()
         guard let current = inputSources.currentID else {
-            presentHUD(caret: nil)
+            presentHUD(caret: fallback)
             return
         }
         hudState = .locating
         let generation = cycleGeneration
         SwitcherCaretProbe.locate(sourceID: current) { [weak self] caret in
             guard let self, self.cycleGeneration == generation, self.hudState == .locating else { return }
-            self.presentHUD(caret: caret)
+            self.presentHUD(caret: caret ?? fallback)
         }
     }
 

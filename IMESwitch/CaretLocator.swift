@@ -1,28 +1,49 @@
 import AppKit
 import ApplicationServices
+import os
 
-/// Finds the on-screen text caret of the focused app via the Accessibility API.
+/// `log stream --level debug --predicate 'subsystem BEGINSWITH "fan.zeyi.IMESwitch" AND category == "caret"'`
+let caretLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "IMESwitch", category: "caret")
+
+/// Finds the on-screen text caret of the focused app via the Accessibility API. Apps get
+/// this wrong often enough that `SwitcherCaretProbe` goes first; this is the fallback.
 enum CaretLocator {
     /// Caret rect in Cocoa screen coordinates (bottom-left origin), or nil if unavailable.
     @MainActor
     static func caretRect() -> NSRect? {
-        guard let focused = focusedElement() else { return nil }
+        let app = NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "?"
+        guard let focused = focusedElement() else {
+            caretLog.debug("\(app, privacy: .public): no focused element")
+            return nil
+        }
         AXUIElementSetMessagingTimeout(focused, 0.05)
+        let frame = elementFrame(focused)
+        let role = attribute(focused, kAXRoleAttribute) as? String ?? "?"
 
+        if let caret = rangeCaret(focused) {
+            let result = clamped(caret, to: frame)
+            caretLog.debug("\(app, privacy: .public) \(role, privacy: .public): range caret \(caret.debugDescription, privacy: .public) → \(result.debugDescription, privacy: .public), element \(frame?.debugDescription ?? "nil", privacy: .public)")
+            return result
+        }
         // Web engines (Firefox, Safari, Chromium) expose the caret through text markers.
-        if let caret = rangeCaret(focused) ?? textMarkerCaret(focused) {
-            return clamped(caret, to: elementFrame(focused))
+        if let caret = textMarkerCaret(focused) {
+            let result = clamped(caret, to: frame)
+            caretLog.debug("\(app, privacy: .public) \(role, privacy: .public): text marker caret \(caret.debugDescription, privacy: .public) → \(result.debugDescription, privacy: .public), element \(frame?.debugDescription ?? "nil", privacy: .public)")
+            return result
         }
 
-        // Fall back to the focused element's frame (e.g. terminals, some Electron apps).
-        if let frame = elementFrame(focused), frame.height < 200 {
+        // Fall back to the focused element's frame (e.g. some Electron apps).
+        if let frame, frame.height < 200 {
+            caretLog.debug("\(app, privacy: .public) \(role, privacy: .public): element frame \(frame.debugDescription, privacy: .public)")
             return frame
         }
+        caretLog.debug("\(app, privacy: .public) \(role, privacy: .public): no caret, element \(frame?.debugDescription ?? "nil", privacy: .public)")
         return nil
     }
 
-    /// Some apps misplace the caret in an empty document; TextEdit reports it a line above
-    /// the text view, in the title bar. Keep it vertically within the focused element.
+    /// Some apps misplace the caret: TextEdit reports it a line above the text view in an
+    /// empty document, System Settings above its search field. Keep it vertically within
+    /// the focused element.
     private static func clamped(_ caret: NSRect, to frame: NSRect?) -> NSRect {
         guard let frame, frame.height >= caret.height else { return caret }
         var caret = caret

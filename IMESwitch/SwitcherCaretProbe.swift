@@ -1,14 +1,17 @@
 import AppKit
 
-/// Finds the caret in apps that don't expose it through the Accessibility API, such as
-/// Ghostty, which only reports it to the input system (`NSTextInputClient.firstRect`).
+/// Finds the caret the way the system switcher does, from the app's own
+/// `NSTextInputClient.firstRect`. That works where the Accessibility API has no caret
+/// (Ghostty) or reports a wrong one (TextEdit, System Settings).
 ///
 /// The system input source switcher draws its strip inside the frontmost app, which
 /// places it at its own caret. HIToolbox in every app listens on a per-process
 /// CFMessagePort, "com.apple.tsm.portname", for the switcher's show and hide messages.
 /// So we ask the app to show the strip, read where its window lands, and hide it again
-/// right away. None of this is public API; if any of it stops working, the probe just
-/// finds nothing and the HUD falls back to the screen center.
+/// right away. The strip briefly shows on screen; that can't be avoided, since the app
+/// only places the window as it shows it. It lists just one source to stay small (an
+/// empty list leaves the app's switcher unable to show again). None of this is public API; if any of it stops working, the probe just
+/// finds nothing and the HUD falls back to `CaretLocator`.
 @MainActor
 enum SwitcherCaretProbe {
     private static let portName = "com.apple.tsm.portname" as CFString
@@ -23,8 +26,9 @@ enum SwitcherCaretProbe {
     private static let stripHeight: CGFloat = 83
     private static let stripTopToCaretBottom: CGFloat = 26
 
-    /// How long to wait for the strip to appear before giving up.
-    private static let timeout: TimeInterval = 0.2
+    /// How long to wait for the strip to appear before giving up, e.g. when no text field
+    /// is focused. It usually shows up within 40–80 ms.
+    private static let timeout: TimeInterval = 0.15
     private static let pollInterval: TimeInterval = 0.005
 
     private typealias CreatePerProcessRemote = @convention(c) (CFAllocator?, CFString, CFIndex) -> Unmanaged<CFMessagePort>?
@@ -57,7 +61,9 @@ enum SwitcherCaretProbe {
                 strip = stripWindows(of: pid).first { !alreadyShown.contains($0.number) }
             }
             send(port, hideMessage, [:])
-            completion(strip.map { caret(below: $0.bounds) })
+            let caret = strip.map { caret(below: $0.bounds) }
+            caretLog.debug("probe pid \(pid): strip \(strip.map { NSStringFromRect($0.bounds) } ?? "none", privacy: .public) → caret \(caret?.debugDescription ?? "nil", privacy: .public)")
+            completion(caret)
         }
     }
 
