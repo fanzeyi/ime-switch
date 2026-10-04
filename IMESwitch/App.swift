@@ -181,6 +181,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(item)
         }
 
+        let editSources = NSMenuItem(title: String(localized: "Edit Input Sources…"), action: #selector(openInputSourceSettings), keyEquivalent: "")
+        editSources.target = self
+        menu.addItem(editSources)
+
         let shortcutsItem = NSMenuItem(title: String(localized: "Configure Shortcuts…"), action: #selector(showShortcuts), keyEquivalent: "")
         shortcutsItem.target = self
         menu.addItem(shortcutsItem)
@@ -215,6 +219,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func showOnboarding() {
         onboarding.show()
+    }
+
+    @objc private func openInputSourceSettings() {
+        Permissions.openInputSourceSettings()
     }
 
     @objc private func showShortcuts() {

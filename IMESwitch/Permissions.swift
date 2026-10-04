@@ -19,6 +19,12 @@ enum Permissions {
         open("x-apple.systempreferences:com.apple.Keyboard-Settings.extension")
     }
 
+    /// The Keyboard pane; Input Sources is a sheet behind its "Edit…" button, with no URL
+    /// of its own.
+    static func openInputSourceSettings() {
+        open("x-apple.systempreferences:com.apple.Keyboard-Settings.extension")
+    }
+
     private static func open(_ string: String) {
         if let url = URL(string: string) { NSWorkspace.shared.open(url) }
     }

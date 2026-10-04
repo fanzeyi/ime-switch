@@ -151,11 +151,19 @@ private struct ShortcutsView: View {
             }
             .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
 
-            Text(model.message ?? (model.recordingID == nil
-                ? "Click a shortcut to change it."
-                : "Type the new shortcut. Esc cancels, Delete clears."))
-                .font(.caption)
-                .foregroundStyle(model.message == nil ? Color.secondary : Color.red)
+            HStack(alignment: .firstTextBaseline) {
+                Text(model.message ?? (model.recordingID == nil
+                    ? "Click a shortcut to change it."
+                    : "Type the new shortcut. Esc cancels, Delete clears."))
+                    .font(.caption)
+                    .foregroundStyle(model.message == nil ? Color.secondary : Color.red)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 12)
+                Button("Edit Input Sources…") {
+                    model.stopRecording()
+                    Permissions.openInputSourceSettings()
+                }
+            }
         }
         .padding(20)
         .frame(width: 420)

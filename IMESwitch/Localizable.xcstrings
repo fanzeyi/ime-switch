@@ -111,6 +111,28 @@
         }
       }
     },
+    "Edit Input Sources…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力ソースを編集…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑输入法…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯輸入法…"
+          }
+        }
+      }
+    },
     "IMESwitch needs it to intercept ⌘Space and to find the text cursor.": {
       "localizations": {
         "ja": {
