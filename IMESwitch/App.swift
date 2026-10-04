@@ -20,6 +20,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let tap = HotkeyTap()
     private let hud = SwitcherHUD()
     private let onboarding = OnboardingWindow()
+    private let shortcuts = ShortcutStore()
+    private lazy var shortcutsWindow = ShortcutsWindow(store: shortcuts)
 
     private var statusItem: NSStatusItem!
     private var permissionTimer: Timer?
@@ -45,11 +47,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             self?.updateStatusIcon()
         }
         inputSources.onSourcesChanged = { [weak self] in
-            self?.syncMRU()
-            self?.updateStatusIcon()
+            guard let self else { return }
+            self.syncMRU()
+            self.updateStatusIcon()
+            self.shortcutsWindow.update(sources: self.inputSources.sources)
         }
         updateStatusIcon()
         tap.handler = { [weak self] event in self?.handle(event) }
+        tap.shortcuts = Set(shortcuts.shortcuts.values)
+        shortcuts.onChange = { [weak self] in
+            guard let self else { return }
+            self.tap.shortcuts = Set(self.shortcuts.shortcuts.values)
+        }
+        shortcutsWindow.onRecordingChanged = { [weak self] recording in
+            self?.tap.shortcutsPaused = recording
+        }
 
         startTapWhenTrusted()
         if !OnboardingWindow.isComplete {
@@ -95,6 +107,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .cancel:
             endCycle()
             hud.hide()
+
+        case let .shortcut(shortcut):
+            if let id = shortcuts.sourceID(for: shortcut), inputSources.select(id) {
+                mru.promote(id)
+            }
         }
     }
 
@@ -150,6 +167,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             item.representedObject = source.id
             item.state = source.id == current ? .on : .off
             item.attributedTitle = Self.menuTitle(source)
+            if let shortcut = shortcuts.shortcuts[source.id], let key = shortcut.menuKeyEquivalent {
+                item.keyEquivalent = key
+                item.keyEquivalentModifierMask = shortcut.menuModifierMask
+            }
             menu.addItem(item)
         }
         menu.addItem(.separator())
@@ -159,6 +180,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             item.target = self
             menu.addItem(item)
         }
+
+        let shortcutsItem = NSMenuItem(title: String(localized: "Input Source Shortcuts…"), action: #selector(showShortcuts), keyEquivalent: "")
+        shortcutsItem.target = self
+        menu.addItem(shortcutsItem)
 
         let login = NSMenuItem(title: String(localized: "Launch at Login"), action: #selector(toggleLoginItem), keyEquivalent: "")
         login.target = self
@@ -190,6 +215,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func showOnboarding() {
         onboarding.show()
+    }
+
+    @objc private func showShortcuts() {
+        shortcutsWindow.show(sources: inputSources.sources)
     }
 
     @objc private func toggleLoginItem() {

@@ -23,6 +23,50 @@
         }
       }
     },
+    "Clear Shortcut": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショートカットを消去"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除快速鍵"
+          }
+        }
+      }
+    },
+    "Click a shortcut to change it.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショートカットをクリックして変更します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按快捷键以更改。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按一下快速鍵以更改。"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "ja": {
@@ -85,6 +129,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "請在「鍵盤快速鍵」中關閉：%@"
+          }
+        }
+      }
+    },
+    "Input Source Shortcuts": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力ソースのショートカット"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入法快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入法快速鍵"
+          }
+        }
+      }
+    },
+    "Input Source Shortcuts…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力ソースのショートカット…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入法快捷键…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入法快速鍵…"
           }
         }
       }
@@ -199,6 +287,28 @@
         }
       }
     },
+    "Press a shortcut anywhere to switch straight to that input source.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "どこでもショートカットを押すと、その入力ソースに直接切り替わります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在任意位置按下快捷键，即可直接切换到对应的输入法。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在任何位置按下快速鍵，即可直接切換到對應的輸入法。"
+          }
+        }
+      }
+    },
     "Quit IMESwitch": {
       "localizations": {
         "ja": {
@@ -217,6 +327,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "結束 IMESwitch"
+          }
+        }
+      }
+    },
+    "Record Shortcut": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショートカットを記録"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "录制快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "錄製快速鍵"
           }
         }
       }
@@ -353,6 +485,72 @@
         }
       }
     },
+    "Type Shortcut…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショートカットを入力…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请按快捷键…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請按快速鍵…"
+          }
+        }
+      }
+    },
+    "Type the new shortcut. Esc cancels, Delete clears.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいショートカットを入力してください。Esc でキャンセル、Delete で消去します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请按下新的快捷键。Esc 取消，Delete 清除。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請按下新的快速鍵。Esc 取消，Delete 清除。"
+          }
+        }
+      }
+    },
+    "Use ⌘, ⌃ or ⌥ with the key, or a function key.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘、⌃、⌥ のいずれかと組み合わせるか、ファンクションキーを使ってください。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请搭配 ⌘、⌃ 或 ⌥ 使用，或使用功能键。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請搭配 ⌘、⌃ 或 ⌥ 使用，或使用功能鍵。"
+          }
+        }
+      }
+    },
     "Welcome to IMESwitch": {
       "localizations": {
         "ja": {
@@ -371,6 +569,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "歡迎使用 IMESwitch"
+          }
+        }
+      }
+    },
+    "⌘Space is already used to cycle input sources.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Space は入力ソースの切り替えに使われています。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Space 已用于循环切换输入法。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Space 已用於循環切換輸入法。"
           }
         }
       }

@@ -3,7 +3,7 @@ import CoreGraphics
 
 /// Intercepts cmd+space system-wide and reports press / release / cancel, the way
 /// cmd+tab works: holding cmd while pressing space repeatedly advances, releasing
-/// cmd commits, Esc cancels.
+/// cmd commits, Esc cancels. Also catches the per-input-source shortcuts.
 @MainActor
 final class HotkeyTap {
     enum Event {
@@ -11,11 +11,16 @@ final class HotkeyTap {
         case press(first: Bool, reverse: Bool)
         case commit
         case cancel
+        /// One of `shortcuts` was pressed.
+        case shortcut(Shortcut)
     }
 
     var handler: ((Event) -> Void)?
+    var shortcuts: Set<Shortcut> = []
+    /// Lets shortcuts through while the user records a new one.
+    var shortcutsPaused = false
 
-    private static let spaceKey: Int64 = 49
+    nonisolated static let spaceKey: Int64 = 49
     private static let escapeKey: Int64 = 53
     private static let relevantModifiers: CGEventFlags = [.maskCommand, .maskShift, .maskAlternate, .maskControl]
 
@@ -60,7 +65,7 @@ final class HotkeyTap {
     }
 
     /// Returns true if the event should be swallowed.
-    fileprivate func handle(type: CGEventType, key: Int64, flags: CGEventFlags) -> Bool {
+    fileprivate func handle(type: CGEventType, key: Int64, flags: CGEventFlags, isRepeat: Bool) -> Bool {
         switch type {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
             if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
@@ -79,6 +84,12 @@ final class HotkeyTap {
                 cycling = false
                 swallowedKeys.insert(key)
                 handler?(.cancel)
+                return true
+            }
+            let shortcut = Shortcut(keyCode: key, flags: flags)
+            if !cycling, !shortcutsPaused, shortcuts.contains(shortcut) {
+                swallowedKeys.insert(key)
+                if !isRepeat { handler?(.shortcut(shortcut)) }
                 return true
             }
             return false
@@ -109,7 +120,8 @@ private func hotkeyTapCallback(
     let tap = Unmanaged<HotkeyTap>.fromOpaque(refcon).takeUnretainedValue()
     let key = event.getIntegerValueField(.keyboardEventKeycode)
     let flags = event.flags
+    let isRepeat = event.getIntegerValueField(.keyboardEventAutorepeat) != 0
     // The tap's run loop source is on the main run loop.
-    let swallow = MainActor.assumeIsolated { tap.handle(type: type, key: key, flags: flags) }
+    let swallow = MainActor.assumeIsolated { tap.handle(type: type, key: key, flags: flags, isRepeat: isRepeat) }
     return swallow ? nil : Unmanaged.passUnretained(event)
 }
