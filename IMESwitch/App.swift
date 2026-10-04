@@ -175,6 +175,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         menu.addItem(.separator())
 
+        let emoji = NSMenuItem(title: String(localized: "Show Emoji & Symbols"), action: #selector(showEmojiAndSymbols), keyEquivalent: "")
+        emoji.target = self
+        menu.addItem(emoji)
+        menu.addItem(.separator())
+
         if !OnboardingWindow.isComplete {
             let item = NSMenuItem(title: String(localized: "⚠️ Finish Setup…"), action: #selector(showOnboarding), keyEquivalent: "")
             item.target = self
@@ -219,6 +224,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func showOnboarding() {
         onboarding.show()
+    }
+
+    @objc private func showEmojiAndSymbols() {
+        EmojiPicker.show()
     }
 
     @objc private func openInputSourceSettings() {

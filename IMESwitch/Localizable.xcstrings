@@ -441,6 +441,28 @@
         }
       }
     },
+    "Show Emoji & Symbols": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絵文字と記号を表示"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示表情与符号"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示表情符號與符號"
+          }
+        }
+      }
+    },
     "Show Spotlight search": {
       "localizations": {
         "ja": {
