@@ -1,4 +1,4 @@
-# <img src="docs/icon.png" width="48" height="48" alt="" align="center"> IMESwitch
+# <img src="docs/icon.png" width="48" height="48" alt="" align="absmiddle"> IMESwitch
 
 A macOS menu bar app that switches input sources with ⌘Space in most-recently-used order, like ⌘Tab does for apps. macOS's own switching loses track of the previous input source once you have three or more.
 
