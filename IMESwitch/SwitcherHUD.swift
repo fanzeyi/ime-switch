@@ -144,6 +144,8 @@ private final class HUDState: ObservableObject {
 
 private struct HUDView: View {
     @ObservedObject var state: HUDState
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
 
     var body: some View {
         let canvas = HUDLayout.canvasSize(itemCount: max(state.items.count, 1))
@@ -176,15 +178,29 @@ private struct HUDView: View {
     }
 
     /// Liquid Glass where available, like the system switcher; a HUD material before that.
+    /// Reduce Transparency gets a solid background, as the system switcher does. Increase
+    /// Contrast adds a visible border, which the system switcher doesn't.
     @ViewBuilder private var stripBackground: some View {
-        if #available(macOS 26, *) {
-            Color.clear.glassEffect(.regular, in: Capsule())
+        if reduceTransparency {
+            Capsule()
+                .fill(Color(nsColor: .windowBackgroundColor))
+                .overlay(border)
+                .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+        } else if #available(macOS 26, *) {
+            Color.clear
+                .glassEffect(.regular, in: Capsule())
+                .overlay { if contrast == .increased { border } }
         } else {
             VisualEffectBackground()
                 .clipShape(Capsule())
-                .overlay(Capsule().strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5))
+                .overlay(border)
                 .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
         }
+    }
+
+    /// Hairline normally; a full point in the stronger separator color with Increase Contrast.
+    private var border: some View {
+        Capsule().strokeBorder(Color(nsColor: .separatorColor), lineWidth: contrast == .increased ? 1 : 0.5)
     }
 
     private var highlight: some View {
