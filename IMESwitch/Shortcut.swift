@@ -194,8 +194,10 @@ final class ShortcutStore: ObservableObject {
     @Published private(set) var switcher: Shortcut
 
     /// The saved switcher, for code that doesn't hold the store.
-    nonisolated static var savedSwitcher: Shortcut {
-        guard let data = UserDefaults.standard.data(forKey: switcherDefaultsKey),
+    nonisolated static var savedSwitcher: Shortcut { switcher(in: .standard) }
+
+    nonisolated private static func switcher(in defaults: UserDefaults) -> Shortcut {
+        guard let data = defaults.data(forKey: switcherDefaultsKey),
               let shortcut = try? JSONDecoder().decode(Shortcut.self, from: data),
               shortcut.switcherProblem == nil
         else { return .defaultSwitcher }
@@ -205,20 +207,24 @@ final class ShortcutStore: ObservableObject {
     /// Called after any change.
     var onChange: (() -> Void)?
 
-    init() {
-        if let data = UserDefaults.standard.data(forKey: Self.defaultsKey),
+    private let defaults: UserDefaults
+
+    /// `defaults` other than `.standard` is for previews, which share the app's domain.
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        if let data = defaults.data(forKey: Self.defaultsKey),
            let decoded = try? JSONDecoder().decode([String: Shortcut].self, from: data) {
             shortcuts = decoded
         } else {
             shortcuts = [:]
         }
-        switcher = Self.savedSwitcher
+        switcher = Self.switcher(in: defaults)
     }
 
     /// Changes the switcher, taking it away from any input source.
     func setSwitcher(_ shortcut: Shortcut) {
         switcher = shortcut
-        UserDefaults.standard.set(try? JSONEncoder().encode(shortcut), forKey: Self.switcherDefaultsKey)
+        defaults.set(try? JSONEncoder().encode(shortcut), forKey: Self.switcherDefaultsKey)
         if shortcuts.values.contains(shortcut) {
             shortcuts = shortcuts.filter { $0.value != shortcut }
             saveShortcuts()
@@ -242,7 +248,7 @@ final class ShortcutStore: ObservableObject {
 
     private func saveShortcuts() {
         if let data = try? JSONEncoder().encode(shortcuts) {
-            UserDefaults.standard.set(data, forKey: Self.defaultsKey)
+            defaults.set(data, forKey: Self.defaultsKey)
         }
     }
 }

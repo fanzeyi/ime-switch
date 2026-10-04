@@ -164,60 +164,80 @@ private struct ShortcutsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            switcherRow
-                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-
-            Text("Press a shortcut anywhere to switch straight to that input source.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
+            section("Switcher", footer: footer(for: ShortcutsModel.switcherID,
+                                               idle: "Hold the modifiers and press the key repeatedly to cycle; add ⇧ to go back.")) {
+                switcherRow
+            }
+            section("Input Sources", footer: footer(for: nil,
+                                                    idle: "Press a shortcut anywhere to switch straight to that input source.")) {
                 ForEach(Array(model.sources.enumerated()), id: \.element.id) { index, source in
-                    if index > 0 { Divider().padding(.leading, 44) }
+                    if index > 0 { Divider().padding(.leading, 46) }
                     row(source)
                 }
-            }
-            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-
-            HStack(alignment: .firstTextBaseline) {
-                Text(model.message ?? (model.recordingID == nil
-                    ? "Click a shortcut to change it."
-                    : "Type the new shortcut. Esc cancels, Delete clears."))
-                    .font(.caption)
-                    .foregroundStyle(model.message == nil ? Color.secondary : Color.red)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 12)
-                Button("Edit Input Sources…") {
+            } accessory: {
+                Button("Edit…") {
                     model.stopRecording()
                     Permissions.openInputSourceSettings()
                 }
+                .buttonStyle(.link)
+                .help("Edit Input Sources…")
             }
         }
         .padding(20)
-        .frame(width: 420)
+        .frame(width: 440)
+    }
+
+    /// A titled, rounded group like System Settings, with a caption below.
+    private func section<Content: View, Accessory: View>(
+        _ title: LocalizedStringKey,
+        footer: some View,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder accessory: () -> Accessory = { EmptyView() }
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title).font(.headline)
+                Spacer()
+                accessory()
+            }
+            .padding(.horizontal, 4)
+            VStack(spacing: 0, content: content)
+                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+            footer
+                .padding(.horizontal, 4)
+        }
+    }
+
+    /// The section's description, or while recording in it, how to finish or why the last
+    /// shortcut was rejected. `recordingID` nil stands for any input source.
+    private func footer(for recordingID: String?, idle: LocalizedStringKey) -> some View {
+        var recording = false
+        if let current = model.recordingID {
+            recording = recordingID.map { current == $0 } ?? (current != ShortcutsModel.switcherID)
+        }
+        let hint: LocalizedStringKey = recordingID == ShortcutsModel.switcherID
+            ? "Type the new shortcut. Esc cancels, Delete resets to \(Shortcut.defaultSwitcher.displayString)."
+            : "Type the new shortcut. Esc cancels, Delete clears."
+        let rejected = recording && model.message != nil
+        return Text(rejected ? model.message! : recording ? hint : idle)
+            .font(.caption)
+            .foregroundStyle(rejected ? Color.red : Color.secondary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var switcherRow: some View {
         let id = ShortcutsModel.switcherID
         let conflicts = model.recordingID == id ? [] : Permissions.conflictingSystemShortcuts()
         return HStack(spacing: 12) {
-            Image(systemName: "arrow.left.arrow.right")
-                .frame(width: 22)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Switch Input Sources")
-                Text("Hold and press repeatedly to cycle; add ⇧ to go back.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text("Switch Input Sources")
             Spacer(minLength: 12)
             if !conflicts.isEmpty {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.yellow)
                     .help("macOS uses this shortcut too: \(conflicts.formatted(.list(type: .and))). Turn it off in Keyboard Shortcuts.")
             }
-            RecorderButton(
+            ShortcutField(
                 shortcut: store.switcher,
                 isRecording: model.recordingID == id,
                 canClear: store.switcher != .defaultSwitcher,
@@ -245,7 +265,7 @@ private struct ShortcutsView: View {
                     .foregroundStyle(.yellow)
                     .help("macOS also uses this shortcut, so it may not work.")
             }
-            RecorderButton(
+            ShortcutField(
                 shortcut: store.shortcuts[source.id],
                 isRecording: model.recordingID == source.id,
                 canClear: store.shortcuts[source.id] != nil,
@@ -259,7 +279,9 @@ private struct ShortcutsView: View {
     }
 }
 
-private struct RecorderButton: View {
+/// A shortcut recorder in the style of System Settings: a field showing the shortcut,
+/// faint when empty, outlined while recording, with a clear button inside.
+private struct ShortcutField: View {
     let shortcut: Shortcut?
     let isRecording: Bool
     let canClear: Bool
@@ -267,32 +289,61 @@ private struct RecorderButton: View {
     let toggle: () -> Void
     let clear: () -> Void
 
-    var body: some View {
-        HStack(spacing: 4) {
-            Button(action: toggle) {
-                Group {
-                    if isRecording {
-                        Text("Type Shortcut…")
-                            .foregroundStyle(Color.accentColor)
-                    } else if let shortcut {
-                        Text(verbatim: shortcut.displayString)
-                    } else {
-                        Text("Record Shortcut")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .frame(minWidth: 110)
-            }
-            .buttonStyle(.bordered)
+    private static let width: CGFloat = 130
+    private static let shape = RoundedRectangle(cornerRadius: 6)
 
-            Button(action: clear) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
+    var body: some View {
+        Button(action: toggle) {
+            Group {
+                if isRecording {
+                    Text("Type Shortcut…")
+                        .foregroundStyle(Color.accentColor)
+                } else if let shortcut {
+                    Text(verbatim: shortcut.displayString)
+                } else {
+                    Text("Record Shortcut")
+                        .foregroundStyle(.tertiary)
+                }
             }
-            .buttonStyle(.plain)
-            .help(clearHelp)
-            .opacity(!canClear || isRecording ? 0 : 1)
-            .disabled(!canClear || isRecording)
+            .lineLimit(1)
+            .padding(.horizontal, showsClear ? 22 : 8)
+            .frame(width: Self.width, height: 24)
+            .background(shortcut == nil && !isRecording ? AnyShapeStyle(.clear) : AnyShapeStyle(.quaternary), in: Self.shape)
+            .overlay {
+                Self.shape.strokeBorder(isRecording ? Color.accentColor : Color.secondary.opacity(shortcut == nil ? 0.35 : 0),
+                                        style: StrokeStyle(lineWidth: isRecording ? 1.5 : 1, dash: shortcut == nil && !isRecording ? [3, 2] : []))
+            }
+            .contentShape(Self.shape)
+        }
+        .buttonStyle(.plain)
+        .overlay(alignment: .trailing) {
+            if showsClear {
+                Button(action: clear) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(clearHelp)
+                .padding(.trailing, 5)
+            }
         }
     }
+
+    private var showsClear: Bool { canClear && !isRecording }
+}
+
+#Preview {
+    // Previews run under the app's bundle ID; keep their shortcuts out of its settings.
+    let defaults = UserDefaults(suiteName: "IMESwitchPreview")!
+    defaults.removePersistentDomain(forName: "IMESwitchPreview")
+    let model = ShortcutsModel(store: ShortcutStore(defaults: defaults))
+    model.sources = [
+        InputSource(id: "com.apple.keylayout.US", name: "U.S.", isKeyboardLayout: true, label: "A"),
+        InputSource(id: "com.apple.inputmethod.SCIM.ITABC", name: "Pinyin – Simplified", isKeyboardLayout: false, label: "简拼"),
+        InputSource(id: "com.apple.inputmethod.TCIM.Pinyin", name: "Pinyin – Traditional", isKeyboardLayout: false, label: "繁拼"),
+        InputSource(id: "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese", name: "Hiragana", isKeyboardLayout: false, label: "あ"),
+    ]
+    // ⌃⌥1 for U.S., to show a recorded shortcut and its clear button.
+    model.store.set(Shortcut(keyCode: 18, flags: [.maskControl, .maskAlternate]), for: "com.apple.keylayout.US")
+    return ShortcutsView(model: model)
 }

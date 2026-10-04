@@ -89,28 +89,6 @@
         }
       }
     },
-    "Click a shortcut to change it.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ショートカットをクリックして変更します。"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "点按快捷键以更改。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按一下快速鍵以更改。"
-          }
-        }
-      }
-    },
     "Configure Shortcuts…": {
       "localizations": {
         "ja": {
@@ -177,6 +155,28 @@
         }
       }
     },
+    "Edit…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編集…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯…"
+          }
+        }
+      }
+    },
     "Esc is left for cancelling.": {
       "localizations": {
         "ja": {
@@ -199,24 +199,24 @@
         }
       }
     },
-    "Hold and press repeatedly to cycle; add ⇧ to go back.": {
+    "Hold the modifiers and press the key repeatedly to cycle; add ⇧ to go back.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "押したまま繰り返し押すと順に切り替わります。⇧ を加えると逆方向です。"
+            "value": "修飾キーを押したままキーを繰り返し押すと順に切り替わります。⇧ を加えると逆方向です。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按住并重复按下以循环切换，加上 ⇧ 反向。"
+            "value": "按住修饰键并重复按下按键以循环切换，加上 ⇧ 反向。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "按住並重複按下以循環切換，加上 ⇧ 反向。"
+            "value": "按住修飾鍵並重複按下按鍵以循環切換，加上 ⇧ 反向。"
           }
         }
       }
@@ -261,6 +261,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "請在「鍵盤快速鍵」中關閉：%@"
+          }
+        }
+      }
+    },
+    "Input Sources": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力ソース"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入法"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入法"
           }
         }
       }
@@ -617,6 +639,28 @@
         }
       }
     },
+    "Switcher": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スイッチャー"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换器"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切換器"
+          }
+        }
+      }
+    },
     "Turn off the system %@ shortcut": {
       "localizations": {
         "ja": {
@@ -701,6 +745,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "請按下新的快速鍵。Esc 取消，Delete 清除。"
+          }
+        }
+      }
+    },
+    "Type the new shortcut. Esc cancels, Delete resets to %@.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいショートカットを入力してください。Esc でキャンセル、Delete で %@ に戻します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请按下新的快捷键。Esc 取消，Delete 恢复为 %@。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請按下新的快速鍵。Esc 取消，Delete 恢復為 %@。"
           }
         }
       }
