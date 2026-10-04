@@ -30,6 +30,7 @@ targets:
         CODE_SIGN_STYLE: Manual
         ENABLE_HARDENED_RUNTIME: YES
         GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       # Debug is the local dev build: a separate app (bundle ID, name, Accessibility
       # grant, defaults) so it doesn't fight with the installed Developer ID build.
       configs:

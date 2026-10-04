@@ -1,83 +1,402 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "A system shortcut is still using ⌘Space" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システムのショートカットが ⌘Space を使用しています" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统快捷键仍占用 ⌘Space" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "系統快速鍵仍佔用 ⌘Space" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "Allow Accessibility access": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセシビリティへのアクセスを許可"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许辅助功能权限"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允許輔助使用權限"
+          }
+        }
       }
     },
-    "Launch at Login" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ログイン時に起動" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录时启动" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "登入時啟動" } }
+    "Done": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
       }
     },
-    "Later" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "後で" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "稍后" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "稍後" } }
+    "IMESwitch needs it to intercept ⌘Space and to find the text cursor.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Space を受け取り、テキストカーソルの位置を調べるために必要です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch 需要它来接管 ⌘Space，并找到文本光标的位置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch 需要它來接管 ⌘Space，並找到文字游標的位置。"
+          }
+        }
       }
     },
-    "Open Keyboard Settings" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "キーボード設定を開く" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开键盘设置" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "打開鍵盤設定" } }
+    "In Keyboard Shortcuts, turn off: %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「キーボードショートカット」で次をオフにしてください：%@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在“键盘快捷键”中关闭：%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請在「鍵盤快速鍵」中關閉：%@"
+          }
+        }
       }
     },
-    "Quit IMESwitch" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "IMESwitch を終了" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出 IMESwitch" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "結束 IMESwitch" } }
+    "Later": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "後で"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍後"
+          }
+        }
       }
     },
-    "Select next source in Input menu" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "入力メニューの次のソースを選択" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择输入法菜单中的下一个输入法" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇輸入方式選單中的下一個輸入方式" } }
+    "Launch at Login": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン時に起動"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录时启动"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入時啟動"
+          }
+        }
       }
     },
-    "Select the previous input source" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "前の入力ソースを選択" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择上一个输入法" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇上一個輸入方式" } }
+    "No system shortcut is using ⌘Space.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Space を使っているシステムショートカットはありません。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有系统快捷键占用 ⌘Space。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有系統快速鍵佔用 ⌘Space。"
+          }
+        }
       }
     },
-    "Show Spotlight search" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Spotlight 検索を表示" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示聚焦搜索" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示 Spotlight 搜尋" } }
+    "Open Keyboard Settings…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーボード設定を開く…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开键盘设置…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開鍵盤設定…"
+          }
+        }
       }
     },
-    "Turn off these shortcuts in System Settings → Keyboard → Keyboard Shortcuts, or they will conflict with IMESwitch:" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "「システム設定」→「キーボード」→「キーボードショートカット」で次のショートカットをオフにしてください。オンのままだと IMESwitch と競合します：" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请在“系统设置 → 键盘 → 键盘快捷键”中关闭以下快捷键，否则会与 IMESwitch 冲突：" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "請在「系統設定 → 鍵盤 → 鍵盤快速鍵」中關閉以下快速鍵，否則會與 IMESwitch 衝突：" } }
+    "Open Settings…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定を開く…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开设置…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開設定…"
+          }
+        }
       }
     },
-    "⚠️ Accessibility permission required…" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ アクセシビリティの許可が必要です…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 需要辅助功能权限…" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 需要輔助使用權限…" } }
+    "Quit IMESwitch": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch を終了"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 IMESwitch"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "結束 IMESwitch"
+          }
+        }
       }
     },
-    "⚠️ Conflicting system shortcut: %@…" : {
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ システムショートカットと競合：%@…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 系统快捷键冲突：%@…" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "⚠️ 系統快速鍵衝突：%@…" } }
+    "Select next source in Input menu": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力メニューの次のソースを選択"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择输入法菜单中的下一个输入法"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇輸入方式選單中的下一個輸入方式"
+          }
+        }
+      }
+    },
+    "Select the previous input source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前の入力ソースを選択"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择上一个输入法"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇上一個輸入方式"
+          }
+        }
+      }
+    },
+    "Set Up IMESwitch": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch の設定"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置 IMESwitch"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定 IMESwitch"
+          }
+        }
+      }
+    },
+    "Show Spotlight search": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight 検索を表示"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示聚焦搜索"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示 Spotlight 搜尋"
+          }
+        }
+      }
+    },
+    "Turn off the system ⌘Space shortcut": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムの ⌘Space ショートカットをオフにする"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭系统的 ⌘Space 快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉系統的 ⌘Space 快速鍵"
+          }
+        }
+      }
+    },
+    "Two quick steps and ⌘Space will switch input sources in most-recently-used order.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 つの手順で、⌘Space で最近使った順に入力ソースを切り替えられるようになります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只需两步，⌘Space 就会按最近使用的顺序切换输入法。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只需兩步，⌘Space 就會依最近使用的順序切換輸入方式。"
+          }
+        }
+      }
+    },
+    "Welcome to IMESwitch": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMESwitch へようこそ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欢迎使用 IMESwitch"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "歡迎使用 IMESwitch"
+          }
+        }
+      }
+    },
+    "⚠️ Finish Setup…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ 設定を完了…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ 完成设置…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ 完成設定…"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

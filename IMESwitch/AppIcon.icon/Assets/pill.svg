@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="pill" gradientUnits="userSpaceOnUse" x1="0" y1="554" x2="0" y2="694">
+      <stop offset="0" stop-color="#5AAAFF"/>
+      <stop offset="1" stop-color="#0A64FF"/>
+    </linearGradient>
+  </defs>
+  <rect x="352" y="554" width="320" height="140" rx="70" fill="url(#pill)"/>
+</svg>

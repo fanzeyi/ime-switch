@@ -19,6 +19,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let mru = MRUStore()
     private let tap = HotkeyTap()
     private let hud = SwitcherHUD()
+    private let onboarding = OnboardingWindow()
 
     private var statusItem: NSStatusItem!
     private var permissionTimer: Timer?
@@ -51,7 +52,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         tap.handler = { [weak self] event in self?.handle(event) }
 
         startTapWhenTrusted()
-        warnAboutConflictingShortcuts()
+        if !OnboardingWindow.isComplete {
+            onboarding.show()
+        }
     }
 
     // MARK: - Switching
@@ -117,29 +120,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func startTapWhenTrusted() {
         if Permissions.isAccessibilityTrusted, tap.start() { return }
-        Permissions.requestAccessibility()
+        // Onboarding asks for the permission; just wait for it to be granted.
         permissionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, Permissions.isAccessibilityTrusted, self.tap.start() else { return }
                 self.permissionTimer?.invalidate()
                 self.permissionTimer = nil
             }
-        }
-    }
-
-    private func warnAboutConflictingShortcuts() {
-        let conflicts = Permissions.conflictingSystemShortcuts()
-        guard !conflicts.isEmpty else { return }
-        let alert = NSAlert()
-        alert.messageText = String(localized: "A system shortcut is still using ⌘Space")
-        alert.informativeText = String(localized: "Turn off these shortcuts in System Settings → Keyboard → Keyboard Shortcuts, or they will conflict with IMESwitch:")
-            + "\n\n"
-            + conflicts.map { "• \($0)" }.joined(separator: "\n")
-        alert.addButton(withTitle: String(localized: "Open Keyboard Settings"))
-        alert.addButton(withTitle: String(localized: "Later"))
-        NSApp.activate()
-        if alert.runModal() == .alertFirstButtonReturn {
-            Permissions.openKeyboardShortcutSettings()
         }
     }
 
@@ -167,15 +154,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         menu.addItem(.separator())
 
-        if !tap.isRunning {
-            let item = NSMenuItem(title: String(localized: "⚠️ Accessibility permission required…"), action: #selector(openAccessibility), keyEquivalent: "")
-            item.target = self
-            menu.addItem(item)
-        }
-        let conflicts = Permissions.conflictingSystemShortcuts()
-        if !conflicts.isEmpty {
-            let item = NSMenuItem(title: String(localized: "⚠️ Conflicting system shortcut: \(conflicts.formatted(.list(type: .and)))…"),
-                                  action: #selector(openKeyboardSettings), keyEquivalent: "")
+        if !OnboardingWindow.isComplete {
+            let item = NSMenuItem(title: String(localized: "⚠️ Finish Setup…"), action: #selector(showOnboarding), keyEquivalent: "")
             item.target = self
             menu.addItem(item)
         }
@@ -208,12 +188,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if inputSources.select(id) { mru.promote(id) }
     }
 
-    @objc private func openAccessibility() {
-        Permissions.openAccessibilitySettings()
-    }
-
-    @objc private func openKeyboardSettings() {
-        Permissions.openKeyboardShortcutSettings()
+    @objc private func showOnboarding() {
+        onboarding.show()
     }
 
     @objc private func toggleLoginItem() {

@@ -30,6 +30,8 @@ enum Permissions {
             "61": String(localized: "Select next source in Input menu"),
             "64": String(localized: "Show Spotlight search"),
         ]
+        // Pick up changes made in System Settings since the last read.
+        CFPreferencesAppSynchronize("com.apple.symbolichotkeys" as CFString)
         guard let hotkeys = CFPreferencesCopyAppValue(
             "AppleSymbolicHotKeys" as CFString, "com.apple.symbolichotkeys" as CFString
         ) as? [String: Any] else {
