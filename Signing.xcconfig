@@ -1,0 +1,14 @@
+// Ad-hoc signing by default, so the project builds without an Apple developer account.
+// macOS ties the Accessibility grant to the signature, and an ad-hoc signature changes
+// on every build, so you'll need to re-grant Accessibility after rebuilding.
+//
+// To sign with your own certificate instead (keeps the grant across rebuilds, and is
+// required for `make dist`), create Local.xcconfig next to this file:
+//
+//     DEVELOPMENT_TEAM = ABCDE12345
+//     CODE_SIGN_IDENTITY = Apple Development
+
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"

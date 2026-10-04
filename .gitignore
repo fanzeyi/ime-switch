@@ -1,3 +1,4 @@
 build/
 IMESwitch.xcodeproj/
 .DS_Store
+Local.xcconfig

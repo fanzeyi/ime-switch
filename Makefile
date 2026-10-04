@@ -1,7 +1,7 @@
 DEV_APP := build/Build/Products/Debug/IMESwitchDev.app
 DIST_APP := build/dist/Build/Products/Release/IMESwitch.app
 DIST_ZIP := build/IMESwitch.zip
-# Created once with: xcrun notarytool store-credentials $(NOTARY_PROFILE) --apple-id <id> --team-id U75D75QN8A
+# Created once with: xcrun notarytool store-credentials $(NOTARY_PROFILE) --apple-id <id> --team-id <team-id>
 NOTARY_PROFILE ?= IMESwitch
 
 XCODEBUILD := xcodebuild -project IMESwitch.xcodeproj -scheme IMESwitch -destination 'generic/platform=macOS' -quiet

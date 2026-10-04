@@ -22,11 +22,14 @@ targets:
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         LSUIElement: true
+    # Signing lives in Signing.xcconfig (ad-hoc by default, overridable in a
+    # git-ignored Local.xcconfig), since target settings here would win over it.
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: fan.zeyi.IMESwitch
-        DEVELOPMENT_TEAM: U75D75QN8A
-        CODE_SIGN_IDENTITY: "Apple Development"
         CODE_SIGN_STYLE: Manual
         ENABLE_HARDENED_RUNTIME: YES
         GENERATE_INFOPLIST_FILE: NO
