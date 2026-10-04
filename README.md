@@ -76,6 +76,8 @@ cd ime-switch
 make run
 ```
 
+`make test` runs the logic tests (shortcut rules and storage, the most-recently-used order) without launching the app.
+
 `make run` builds and launches **IMESwitch Dev**, a debug build with its own bundle ID (`fan.zeyi.IMESwitch.dev`), so it has its own Accessibility grant and settings and doesn't disturb an installed copy. Both would intercept ⌘Space, so `make run` quits the installed app. Restart it with `open /Applications/IMESwitch.app`.
 
 ### Code signing

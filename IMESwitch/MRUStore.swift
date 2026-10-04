@@ -6,9 +6,11 @@ final class MRUStore {
     private static let defaultsKey = "MRUOrder"
 
     private(set) var order: [String]
+    private let defaults: UserDefaults
 
-    init() {
-        order = UserDefaults.standard.stringArray(forKey: Self.defaultsKey) ?? []
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        order = defaults.stringArray(forKey: Self.defaultsKey) ?? []
     }
 
     func promote(_ id: String) {
@@ -32,6 +34,6 @@ final class MRUStore {
     }
 
     private func save() {
-        UserDefaults.standard.set(order, forKey: Self.defaultsKey)
+        defaults.set(order, forKey: Self.defaultsKey)
     }
 }

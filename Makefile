@@ -6,7 +6,7 @@ NOTARY_PROFILE ?= IMESwitch
 
 XCODEBUILD := xcodebuild -project IMESwitch.xcodeproj -scheme IMESwitch -destination 'generic/platform=macOS' -quiet
 
-.PHONY: gen build run install dist release clean
+.PHONY: gen build test run install dist release clean
 
 gen:
 	xcodegen generate
@@ -14,6 +14,10 @@ gen:
 # Dev build: "IMESwitch Dev" (fan.zeyi.IMESwitch.dev), separate from the installed app.
 build: gen
 	$(XCODEBUILD) -configuration Debug -derivedDataPath build build
+
+# Logic tests (IMESwitchTests), run without launching the app.
+test: gen
+	xcodebuild -project IMESwitch.xcodeproj -scheme IMESwitch -destination 'platform=macOS' -derivedDataPath build -quiet test
 
 # Both would intercept ⌘Space, so stop the installed app while the dev build runs.
 # Bring it back with `open /Applications/IMESwitch.app`.

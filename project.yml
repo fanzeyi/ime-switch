@@ -45,3 +45,25 @@ targets:
         Release:
           PRODUCT_NAME: IMESwitch
           APP_DISPLAY_NAME: IMESwitch
+    scheme:
+      testTargets:
+        - IMESwitchTests
+
+  # Logic tests without a host app: launching the menu bar app would start its event
+  # tap and setup window. The files under test are compiled in directly instead.
+  IMESwitchTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - IMESwitchTests
+      - IMESwitch/Shortcut.swift
+      - IMESwitch/MRUStore.swift
+      - IMESwitch/HotkeyTap.swift
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fan.zeyi.IMESwitchTests
+        CODE_SIGN_STYLE: Manual
+        GENERATE_INFOPLIST_FILE: YES
