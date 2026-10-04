@@ -181,7 +181,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(item)
         }
 
-        let shortcutsItem = NSMenuItem(title: String(localized: "Input Source Shortcuts…"), action: #selector(showShortcuts), keyEquivalent: "")
+        let shortcutsItem = NSMenuItem(title: String(localized: "Configure Shortcuts…"), action: #selector(showShortcuts), keyEquivalent: "")
         shortcutsItem.target = self
         menu.addItem(shortcutsItem)
 

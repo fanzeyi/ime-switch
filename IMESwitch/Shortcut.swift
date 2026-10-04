@@ -24,10 +24,12 @@ struct Shortcut: Codable, Hashable, Sendable {
     enum Problem {
         case needsModifier
         case reserved
+        case usedBySystem
     }
 
     /// Plain keys would fire while typing, so a shortcut needs ⌘, ⌃ or ⌥, unless it is a
-    /// function key. ⌘Space and ⌘⇧Space belong to the MRU switcher.
+    /// function key. ⌘Space and ⌘⇧Space belong to the MRU switcher, and enabled macOS
+    /// shortcuts (Mission Control, screenshots, …) would fight with ours.
     var problem: Problem? {
         if keyCode == HotkeyTap.spaceKey, flags.contains(.maskCommand), flags.isSubset(of: [.maskCommand, .maskShift]) {
             return .reserved
@@ -36,7 +38,34 @@ struct Shortcut: Codable, Hashable, Sendable {
         if !hasModifier, !Self.functionKeys.keys.contains(keyCode) {
             return .needsModifier
         }
+        if Self.systemShortcuts().contains(self) {
+            return .usedBySystem
+        }
         return nil
+    }
+
+    /// The enabled shortcuts in System Settings → Keyboard → Keyboard Shortcuts.
+    static func systemShortcuts() -> Set<Shortcut> {
+        var array: Unmanaged<CFArray>?
+        guard CopySymbolicHotKeys(&array) == noErr,
+              let hotKeys = array?.takeRetainedValue() as? [[String: Any]] else {
+            return []
+        }
+        let carbonModifiers: [(Int, CGEventFlags)] = [
+            (cmdKey, .maskCommand), (shiftKey, .maskShift), (optionKey, .maskAlternate), (controlKey, .maskControl),
+        ]
+        return Set(hotKeys.compactMap { hotKey in
+            guard hotKey["kHISymbolicHotKeyEnabled"] as? Bool == true,
+                  let code = hotKey["kHISymbolicHotKeyCode"] as? Int, code != 0xFFFF,
+                  let modifiers = hotKey["kHISymbolicHotKeyModifiers"] as? Int else {
+                return nil
+            }
+            var flags: CGEventFlags = []
+            for (carbon, flag) in carbonModifiers where modifiers & carbon != 0 {
+                flags.insert(flag)
+            }
+            return Shortcut(keyCode: Int64(code), flags: flags)
+        })
     }
 
     /// As shown in menus, e.g. "⌃⌥1" or "⇧F5".

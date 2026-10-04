@@ -67,6 +67,28 @@
         }
       }
     },
+    "Configure Shortcuts…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショートカットを設定…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置快捷键…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定快速鍵…"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "ja": {
@@ -151,28 +173,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "輸入法快速鍵"
-          }
-        }
-      }
-    },
-    "Input Source Shortcuts…": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "入力ソースのショートカット…"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "输入法快捷键…"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "輸入法快速鍵…"
           }
         }
       }
@@ -569,6 +569,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "歡迎使用 IMESwitch"
+          }
+        }
+      }
+    },
+    "macOS already uses this shortcut. Pick another, or turn it off in Keyboard Shortcuts.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このショートカットは macOS で使われています。別のものを選ぶか、「キーボードショートカット」でオフにしてください。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 已占用此快捷键。请换一个，或在“键盘快捷键”中将其关闭。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 已佔用此快速鍵。請換一個，或在「鍵盤快速鍵」中將其關閉。"
+          }
+        }
+      }
+    },
+    "macOS also uses this shortcut, so it may not work.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このショートカットは macOS でも使われているため、動作しない場合があります。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 也在使用此快捷键，可能无法生效。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 也在使用此快速鍵，可能無法生效。"
           }
         }
       }

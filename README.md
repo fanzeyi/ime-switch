@@ -5,7 +5,7 @@ A menu bar app that replaces macOS's ⌘Space input source switching with cmd+ta
 - **Tap ⌘Space** → switch to the previously used input source. Tap again to come back.
 - **Hold ⌘, press Space repeatedly** → walk through input sources in most-recently-used order, with a HUD near the text caret. Release ⌘ to commit; the chosen source moves to the front, so the next tap returns to where you came from.
 - **⌘⇧Space** while cycling goes backwards, **Esc** cancels.
-- **Per-source shortcuts** (menu → Input Source Shortcuts…) switch straight to one input source, e.g. ⌃⌥1 for ABC. They need ⌘, ⌃ or ⌥, or can be a bare function key.
+- **Per-source shortcuts** (menu → Configure Shortcuts…) switch straight to one input source, e.g. ⌃⌥1 for ABC. They need ⌘, ⌃ or ⌥, or can be a bare function key; shortcuts macOS already uses are rejected.
 - Switching from the menu bar or any other way also updates the MRU order.
 - The menu bar badge mirrors the system one (简拼, あ, DE, РУ, …), using the labels macOS itself provides for each input source.
 - UI in English, Simplified Chinese, Traditional Chinese and Japanese.

@@ -112,6 +112,9 @@ private final class ShortcutsModel: ObservableObject {
         case .reserved:
             message = "⌘Space is already used to cycle input sources."
             NSSound.beep()
+        case .usedBySystem:
+            message = "macOS already uses this shortcut. Pick another, or turn it off in Keyboard Shortcuts."
+            NSSound.beep()
         case nil:
             store.set(shortcut, for: id)
             stopRecording()
@@ -165,6 +168,14 @@ private struct ShortcutsView: View {
             Text(source.name)
                 .lineLimit(1)
             Spacer(minLength: 12)
+            // A shortcut can become taken after it was recorded, e.g. by a system shortcut
+            // turned on later.
+            if let shortcut = store.shortcuts[source.id], model.recordingID != source.id,
+               shortcut.problem == .usedBySystem {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.yellow)
+                    .help("macOS also uses this shortcut, so it may not work.")
+            }
             RecorderButton(
                 shortcut: store.shortcuts[source.id],
                 isRecording: model.recordingID == source.id,
