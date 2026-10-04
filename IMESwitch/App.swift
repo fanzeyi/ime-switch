@@ -29,8 +29,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // Cycle state
     private var candidates: [String] = []
     private var index = 0
-    private var hudVisible = false
+    private var hudState = HUDState.hidden
     private var pendingHUD: DispatchWorkItem?
+    /// Bumped when a cycle ends, so a caret probe that finishes later is dropped.
+    private var cycleGeneration = 0
+
+    private enum HUDState {
+        case hidden
+        /// Waiting for `SwitcherCaretProbe` to find the caret.
+        case locating
+        case visible
+    }
 
     /// A tap released within this interval switches without ever showing the HUD.
     private static let hudDelay: TimeInterval = 0.15
@@ -90,10 +99,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 let work = DispatchWorkItem { [weak self] in self?.showHUD() }
                 pendingHUD = work
                 DispatchQueue.main.asyncAfter(deadline: .now() + Self.hudDelay, execute: work)
-            } else if hudVisible {
-                hud.move(to: index)
             } else {
-                showHUD()
+                switch hudState {
+                case .visible: hud.move(to: index)
+                case .locating: break // shown with the latest index once located
+                case .hidden: showHUD()
+                }
             }
 
         case .commit:
@@ -119,16 +130,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         pendingHUD?.cancel()
         pendingHUD = nil
         guard !candidates.isEmpty else { return }
+        if let caret = CaretLocator.caretRect() {
+            presentHUD(caret: caret)
+            return
+        }
+        // No caret through Accessibility (e.g. Ghostty): ask the app itself.
+        guard let current = inputSources.currentID else {
+            presentHUD(caret: nil)
+            return
+        }
+        hudState = .locating
+        let generation = cycleGeneration
+        SwitcherCaretProbe.locate(sourceID: current) { [weak self] caret in
+            guard let self, self.cycleGeneration == generation, self.hudState == .locating else { return }
+            self.presentHUD(caret: caret)
+        }
+    }
+
+    private func presentHUD(caret: NSRect?) {
         let items = candidates.compactMap { inputSources.source(withID: $0) }
-        guard items.count == candidates.count else { return }
-        hud.showStrip(items: items, selected: index, caret: CaretLocator.caretRect())
-        hudVisible = true
+        guard items.count == candidates.count else {
+            hudState = .hidden
+            return
+        }
+        hud.showStrip(items: items, selected: index, caret: caret)
+        hudState = .visible
     }
 
     private func endCycle() {
         pendingHUD?.cancel()
         pendingHUD = nil
-        hudVisible = false
+        hudState = .hidden
+        cycleGeneration += 1
         candidates = []
         index = 0
     }
