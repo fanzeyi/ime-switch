@@ -1,4 +1,4 @@
-# <img src="docs/icon.png" width="64" height="64" alt="" align="center"> IMESwitch
+# <img src="docs/icon.png" width="48" height="48" alt="" align="center"> IMESwitch
 
 A macOS menu bar app that switches input sources with ⌘Space in most-recently-used order, like ⌘Tab does for apps. macOS's own switching loses track of the previous input source once you have three or more.
 
@@ -93,6 +93,8 @@ xcrun notarytool store-credentials IMESwitch --apple-id <apple-id> --team-id <te
 ```
 
 `make install` copies that build to /Applications and launches it.
+
+`make release VERSION=x.y.z` does the whole release: bumps the version in `project.yml`, runs `make dist`, then after a confirmation commits, tags, pushes, publishes the GitHub release with the zip and updates the cask in [fanzeyi/homebrew-tap](https://github.com/fanzeyi/homebrew-tap). Pass `NOTES=file.md` for release notes; otherwise GitHub generates them.
 
 ## Contributing
 

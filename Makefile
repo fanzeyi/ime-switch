@@ -6,7 +6,7 @@ NOTARY_PROFILE ?= IMESwitch
 
 XCODEBUILD := xcodebuild -project IMESwitch.xcodeproj -scheme IMESwitch -destination 'generic/platform=macOS' -quiet
 
-.PHONY: gen build run install dist clean
+.PHONY: gen build run install dist release clean
 
 gen:
 	xcodegen generate
@@ -44,6 +44,11 @@ dist: gen
 	rm -f $(DIST_ZIP)
 	ditto -c -k --keepParent $(DIST_APP) $(DIST_ZIP)
 	@echo "Ready: $(DIST_ZIP)"
+
+# Bump the version, build with `make dist`, tag, publish the GitHub release and
+# update the Homebrew cask: make release VERSION=x.y.z [NOTES=notes.md]
+release:
+	scripts/release.sh $(VERSION) $(NOTES)
 
 clean:
 	rm -rf build IMESwitch.xcodeproj
