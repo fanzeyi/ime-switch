@@ -19,6 +19,11 @@ final class InputSourceManager {
     var onSourcesChanged: (() -> Void)?
 
     private var observers: [NSObjectProtocol] = []
+    /// The latest source asked for, so a fallback for an earlier one doesn't undo it.
+    private var requestedID: String?
+
+    /// How long the frontmost app gets to select a source itself before we do it.
+    private static let inAppSelectTimeout: TimeInterval = 0.3
 
     init() {
         refresh()
@@ -110,7 +115,20 @@ final class InputSourceManager {
         guard let tis = Self.selectableSources().first(where: { Self.string($0, kTISPropertyInputSourceID) == id }) else {
             return false
         }
+        requestedID = id
         if currentID == id { return true }
+        // Input methods selected with TISSelectInputSource often show in the menu bar while
+        // the frontmost app keeps typing with the previous source until it loses focus.
+        // The menu bar's Input menu asks the app to select the source itself instead,
+        // which takes effect right away, so do the same.
+        if let flattened = Self.flattened(tis), Self.selectInFrontmostApp(flattened) {
+            // The app may not handle it, e.g. when keyboard focus is in another process.
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.inAppSelectTimeout) { [weak self] in
+                guard let self, self.requestedID == id, self.currentID != id else { return }
+                TISSelectInputSource(tis)
+            }
+            return true
+        }
         let status = TISSelectInputSource(tis)
         if status != noErr { return false }
         // TISSelectInputSource occasionally reports success for CJK input modes without
@@ -119,6 +137,28 @@ final class InputSourceManager {
             DispatchQueue.main.async { TISSelectInputSource(tis) }
         }
         return true
+    }
+
+    private static func selectInFrontmostApp(_ flattened: [String: Any]) -> Bool {
+        guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier,
+              let port = TSMPort.port(of: pid)
+        else { return false }
+        return TSMPort.send(port, TSMPort.selectSourceMessage, [TSMPort.selectedSourceKey: flattened])
+    }
+
+    /// The form the Input menu sends sources in, the same as the entries of
+    /// `AppleEnabledInputSources` in the HIToolbox defaults. Nil for keyboard layouts,
+    /// which TISSelectInputSource switches reliably.
+    private static func flattened(_ source: TISInputSource) -> [String: Any]? {
+        guard let bundleID = string(source, kTISPropertyBundleID) else { return nil }
+        let type = string(source, kTISPropertyInputSourceType)
+        if type == kTISTypeKeyboardInputMode as String, let mode = string(source, kTISPropertyInputModeID) {
+            return ["InputSourceKind": "Input Mode", "Bundle ID": bundleID, "Input Mode": mode]
+        }
+        if type == kTISTypeKeyboardInputMethodWithoutModes as String {
+            return ["InputSourceKind": "Keyboard Input Method", "Bundle ID": bundleID]
+        }
+        return nil
     }
 
     // MARK: - TIS helpers
